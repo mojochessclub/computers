@@ -71,8 +71,6 @@ def fig_charge():
                 va="center", ha="right" if v > 25 else "left",
                 color="white" if v > 25 else GRIS, fontsize=9, fontweight="bold", zorder=4)
     ax.axvline(85, color=ROUGE, linestyle="--", linewidth=1.1, zorder=5)
-    ax.text(84.2, -0.52, "seuil d'alerte 85 %", color=ROUGE, fontsize=8, fontweight="bold",
-            ha="right", va="center")
     ax.set_yticks(list(y))
     ax.set_yticklabels(labels, fontweight="bold")
     ax.invert_yaxis()

@@ -118,18 +118,32 @@ doc.p("Un hyperviseur se juge sur quatre indicateurs, pas un seul. Les moyennes 
       "la mémoire et le stockage**, et le processeur ne participe pas à la contrainte.")
 
 doc.table(
-    ["Ressource", "Capacité", "Occupation", "Lecture", "Conséquence"],
+    ["Rubrique", "Élément", "Valeur constatée", "Lecture"],
     [
-        ["CPU", "8 cœurs / 2,5 GHz", "**≈ 15 %**", "Sous-employé", "Aucun investissement prioritaire"],
-        ["Mémoire vive", "64 Go", "**88,4 %**", "Saturation", "Risque d'instabilité et de lenteur"],
-        ["Disque", "≈ 960 Go", "**89,9 %**", "Saturation", "Plus de place pour les snapshots ni la croissance"],
-        ["SWAP", "—", "**≈ 100 %**", "Débordement mémoire", "Dégradation des performances, signe d'alerte"],
+        ["**Hébergement**", "Hébergeur et type d'offre", "Online / Scaleway — serveur dédié (bare metal)",
+         "Hyperviseur installé et administré en interne"],
+        ["", "Contrat : engagement, échéance, coût mensuel", "**Non communiqué**",
+         "Variable décisive du calcul de rentabilité"],
+        ["**Matériel**", "Processeur", "8 cœurs à 2,5 GHz", "Référence exacte non communiquée"],
+        ["", "Mémoire vive", "64 Go", "Plafond actuel de la plateforme"],
+        ["", "Stockage", "≈ 960 Go (≈ 1 To)", "Niveau RAID et type de disques non communiqués"],
+        ["", "Réseau", "Non communiqué", "Débits, adresses IP publiques, redondance"],
+        ["**Charge**", "Processeur", "**≈ 15 %**", "Sous-employé — aucune contrainte"],
+        ["", "Mémoire vive", "**88,4 %**", "**Saturation — contrainte n°1**"],
+        ["", "Disque", "**89,9 %**", "**Saturation — contrainte n°2**"],
+        ["", "SWAP", "**≈ 100 %**", "Débordement mémoire effectif"],
+        ["**Exploitation**", "Hyperviseur et version", "Non communiqués",
+         "Cible retenue pour le remplacement : Proxmox VE"],
+        ["", "Nombre de VM hébergées", "Non communiqué", "À relever pour le dimensionnement définitif"],
+        ["", "Sauvegarde et restauration", "À confirmer", "Point de vigilance majeur lors du rapatriement"],
+        ["", "Supervision et alertes", "À confirmer", "Aucune alerte documentée à ce stade"],
     ],
-    widths=[2.6, 3.2, 2.6, 3.6, 5.1], font=8.3, aligns=["l", "l", "r", "l", "l"],
-    caption="Tableau 2 — État des lieux de l'hyperviseur actuel.",
-    row_bg={1: "FBEAEA", 2: "FBEAEA", 3: "FBEAEA"})
+    widths=[2.75, 4.15, 4.05, 6.15], font=7.9, zebra=False,
+    caption="Tableau 2 — Fiche d'identité de l'hyperviseur actuel. En orangé : une information "
+            "manquante décisive ; en rouge : les ressources saturées.",
+    row_bg={1: "FDF1E7", 6: "FBEAEA", 7: "FBEAEA", 8: "FBEAEA", 9: "FBEAEA"})
 
-doc.image("fig_charge.png", "Figure 1 — Les deux barres rouges commandent l'investissement ; la barre verte indique une ressource à ne pas surdimensionner.")
+doc.image("fig_charge.png", "Figure 1 — Les deux barres rouges commandent l'investissement ; la barre verte indique une ressource à ne pas surdimensionner. Le trait vertical marque le seuil d'alerte à 85 %.", width_cm=13.2)
 
 doc.callout("Le piège à éviter",
             "Dimensionner le nouveau serveur « à l'identique » revient à acheter, pour 9 000 €, "
