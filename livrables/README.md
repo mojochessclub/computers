@@ -6,6 +6,7 @@ Deux documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un
 | Fichier | Contenu | Volume |
 |---|---|---|
 | `A_Analyse_Joel_reformulee_qualite_prix_performance` | **Reformulation de l'analyse de Joël** sous l'angle qualité / prix / performance : existant, dimensionnement cible, Proxmox, comparaison des 7 configurations chiffrées, meilleure offre n°1 et n°2, neuf vs reconditionné, générations, 3 tranches de budget, coût complet, recommandation. | 14 pages · 18 tableaux · 7 graphiques |
+| `D_Cinq_constructeurs_tableaux_comparatifs` | **Proposition D — cinq tableaux, un par constructeur** (HPE, Dell, Lenovo, Supermicro, ASUS). Chaque tableau reprend les lignes de la fiche de l'existant et décline 3 configurations (64 Go / 128 Go / gamme supérieure), avec Product Number, fournisseur, tarif et lien constructeur vérifié. Code couleur vert / jaune / orange selon la conformité aux exigences. | 10 pages · 10 tableaux · 5 pages en paysage |
 | `B_Analyse_independante_benchmark_appro` | **Analyse indépendante construite de A à Z** (sans reprendre les conclusions initiales) : lecture critique des mesures, règles de dimensionnement, architecture Proxmox, nomenclature chiffrée, **4 recommandations HPE**, alternatives Dell / Lenovo / Supermicro, **4 circuits d'achat en France**, benchmark de 9 candidats, coût total, plan d'appro en 8 semaines, questions à poser aux revendeurs. | 14 pages · 18 tableaux · 5 graphiques |
 
 ## Ce que les deux documents démontrent
@@ -17,6 +18,8 @@ Deux documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un
 - Le **prix du serveur n'est pas le coût du projet** : réseau, onduleur, licences, fret, douane et
   migration ajoutent 40 à 50 %.
 - Le rapatriement devient rentable si la facture de location actuelle dépasse **≈ 550 €/mois HT**.
+- À exigences égales, **HPE, Lenovo et Supermicro se tiennent en 128 Go entre 8 200 et 8 500 € HT**,
+  quand Dell (canal direct) affiche 16 411 € et le 2U HPE 16 861 €.
 
 ## Régénérer les documents
 
@@ -26,6 +29,7 @@ cd docs_gen
 ../.venv/bin/python charts.py      # graphiques -> docs_gen/assets
 ../.venv/bin/python doc_a.py       # livrables/A_*.docx + .pdf
 ../.venv/bin/python doc_b.py       # livrables/B_*.docx + .pdf
+../.venv/bin/python doc_d.py       # livrables/D_*.docx + .pdf
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),

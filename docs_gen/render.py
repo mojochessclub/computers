@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Rendu double : un même contenu produit un .docx (python-docx) et un .pdf (reportlab)."""
 import os
+import re
 from datetime import date
 
 from docx import Document
@@ -8,10 +9,11 @@ from docx.shared import Pt, Cm, RGBColor, Emu
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.enum.table import WD_TABLE_ALIGNMENT
 from docx.enum.section import WD_SECTION
+from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.units import cm
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
@@ -19,7 +21,8 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_JUSTIFY
 from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.platypus import (BaseDocTemplate, Frame, PageTemplate, Paragraph, Spacer,
-                                Table, TableStyle, Image, PageBreak, KeepTogether, Flowable)
+                                Table, TableStyle, Image, PageBreak, KeepTogether, Flowable,
+                                NextPageTemplate)
 from PIL import Image as PILImage
 
 # --------------------------------------------------------------------------- #
@@ -85,29 +88,83 @@ def _esc(t):
     return (t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;"))
 
 
+TOKEN_RE = re.compile(r"\*\*(.+?)\*\*|\[([^\]]+)\]\(([^)]+)\)")
+
+
+def _tokens(text):
+    """Découpe un texte en (fragment, gras, url) ; gère **gras**, [libellé](url) et sauts de ligne."""
+    out = []
+    for li, line in enumerate(str(text).split("\n")):
+        if li:
+            out.append(("\n", False, None))
+        pos = 0
+        for m in TOKEN_RE.finditer(line):
+            if m.start() > pos:
+                out.append((line[pos:m.start()], False, None))
+            if m.group(1) is not None:
+                out.append((m.group(1), True, None))
+            else:
+                out.append((m.group(2), False, m.group(3)))
+            pos = m.end()
+        if pos < len(line):
+            out.append((line[pos:], False, None))
+    return out
+
+
 def _rich_pdf(t):
-    """**gras** -> <b> ; \\n -> <br/>"""
-    lines = []
-    for line in str(t).split("\n"):
-        buf, bold = [], False
-        for chunk in line.split("**"):
-            if chunk:
-                buf.append(f"<b>{_esc(chunk)}</b>" if bold else _esc(chunk))
-            bold = not bold
-        lines.append("".join(buf))
-    return "<br/>".join(lines)
+    parts = []
+    for frag, bold, url in _tokens(t):
+        if frag == "\n":
+            parts.append("<br/>")
+        elif url:
+            parts.append(f'<link href="{url}"><font color="#1F4E79"><u>{_esc(frag)}</u></font></link>')
+        elif bold:
+            parts.append(f"<b>{_esc(frag)}</b>")
+        else:
+            parts.append(_esc(frag))
+    return "".join(parts)
+
+
+def _add_docx_hyperlink(par, url, text, size=None, bold=False, color="1F4E79"):
+    part = par.part
+    r_id = part.relate_to(
+        url, "http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink",
+        is_external=True)
+    hl = OxmlElement("w:hyperlink")
+    hl.set(qn("r:id"), r_id)
+    run = OxmlElement("w:r")
+    rPr = OxmlElement("w:rPr")
+    if bold:
+        rPr.append(OxmlElement("w:b"))
+    col = OxmlElement("w:color")
+    col.set(qn("w:val"), color)
+    rPr.append(col)
+    u = OxmlElement("w:u")
+    u.set(qn("w:val"), "single")
+    rPr.append(u)
+    if size:
+        sz = OxmlElement("w:sz")
+        sz.set(qn("w:val"), str(int(size * 2)))
+        rPr.append(sz)
+    run.append(rPr)
+    t = OxmlElement("w:t")
+    t.text = text
+    t.set(qn("xml:space"), "preserve")
+    run.append(t)
+    hl.append(run)
+    par._p.append(hl)
 
 
 def _rich_docx(par, text):
-    for li, line in enumerate(str(text).split("\n")):
-        if li:
+    size = None
+    for frag, bold, url in _tokens(text):
+        if frag == "\n":
             par.add_run().add_break()
-        bold = False
-        for chunk in line.split("**"):
-            if chunk:
-                r = par.add_run(chunk)
-                r.bold = bold
-            bold = not bold
+        elif url:
+            _add_docx_hyperlink(par, url, frag, size=size, bold=bold)
+        else:
+            r = par.add_run(frag)
+            r.bold = bold
 
 
 def _img_size(path, width_pt):
@@ -172,6 +229,9 @@ class Doc:
         self._setup_docx()
         self._pdf_styles()
         self.first_h1 = True
+        self.w_cm = 17.1
+        self._just_broke = False
+        self._land = False
 
     # ------------------------------------------------------------------ docx
     def _setup_docx(self):
@@ -310,7 +370,9 @@ class Doc:
 
     def h1(self, num, text, newpage=True):
         if not self.first_h1:
-            if newpage:
+            if self._just_broke:
+                self._just_broke = False
+            elif newpage:
                 self.doc.add_page_break()
                 self.story.append(PageBreak())
             else:
@@ -379,7 +441,7 @@ class Doc:
 
     def table(self, headers, rows, widths, font=8.4, caption=None, header=True,
               zebra=True, aligns=None, header_bg=BLEU, row_bg=None, first_col_bold=False,
-              _append=True):
+              cell_fmt=None, _append=True):
         """widths : liste de largeurs relatives (cm sur 17 cm utiles)."""
         # ---------------- docx
         d = self.doc
@@ -390,7 +452,8 @@ class Doc:
         t.autofit = False
         _cell_margins(t)
         total = sum(widths)
-        scale = 17.1 / total
+        scale = self.w_cm / total
+        cell_fmt = cell_fmt or {}
 
         if header and headers:
             cells = t.add_row().cells
@@ -430,10 +493,20 @@ class Doc:
                     par.alignment = WD_ALIGN_PARAGRAPH.RIGHT
                 elif aligns and aligns[j] == "c":
                     par.alignment = WD_ALIGN_PARAGRAPH.CENTER
-                if row_bg and i in row_bg:
+                fmt = cell_fmt.get((i, j), {})
+                if fmt.get("bg"):
+                    _shade(c, fmt["bg"])
+                elif row_bg and i in row_bg:
                     _shade(c, row_bg[i])
                 elif zebra and i % 2 == 1:
                     _shade(c, GRIS_CLAIR)
+                for r in par.runs:
+                    if fmt.get("color"):
+                        r.font.color.rgb = RGBColor.from_string(fmt["color"])
+                    if fmt.get("b"):
+                        r.bold = True
+                    if fmt.get("i"):
+                        r.italic = True
         if caption:
             cp = d.add_paragraph()
             r = cp.add_run(caption)
@@ -450,14 +523,14 @@ class Doc:
         self.story.append(self._mk_table(headers, rows, [w * scale * cm for w in widths],
                                          header=header, zebra=zebra, font=font, aligns=aligns,
                                          header_bg=header_bg, row_bg=row_bg,
-                                         first_col_bold=first_col_bold))
+                                         first_col_bold=first_col_bold, cell_fmt=cell_fmt))
         if caption:
             self.story.append(Paragraph(_rich_pdf(caption), self.ps["caption"]))
         else:
             self.story.append(Spacer(1, 0.25 * cm))
 
     def _mk_table(self, headers, rows, widths_cm_list, header=True, zebra=True, font=8.4,
-                  aligns=None, header_bg=BLEU, row_bg=None, first_col_bold=False):
+                  aligns=None, header_bg=BLEU, row_bg=None, first_col_bold=False, cell_fmt=None):
         st_cell = ParagraphStyle("c", parent=self.ps["cell"], fontSize=font, leading=font * 1.28)
         st_cellb = ParagraphStyle("cb", parent=self.ps["cellb"], fontSize=font, leading=font * 1.28)
         st_head = ParagraphStyle("ch", parent=self.ps["cellh"], fontSize=font, leading=font * 1.28)
@@ -473,8 +546,12 @@ class Doc:
                     al = 2
                 elif aligns and aligns[j] == "c":
                     al = 1
-                s2 = ParagraphStyle(f"c{j}", parent=style, alignment=al)
-                line.append(Paragraph(_rich_pdf(str(v)), s2))
+                fmt = (cell_fmt or {}).get((i, j), {})
+                s3 = ParagraphStyle(
+                    f"c{j}_{i}", parent=style, alignment=al,
+                    fontName="DJ-B" if fmt.get("b") else "DJ",
+                    textColor=hexc(fmt["color"]) if fmt.get("color") else colors.HexColor("#1A1A1A"))
+                line.append(Paragraph(_rich_pdf(str(v)), s3))
             data.append(line)
         t = Table(data, colWidths=widths_cm_list, repeatRows=1 if (header and headers) else 0)
         cmds = [
@@ -495,6 +572,11 @@ class Doc:
             for i, bg in row_bg.items():
                 idx = i + (1 if (header and headers) else 0)
                 cmds.append(("BACKGROUND", (0, idx), (-1, idx), hexc(bg)))
+        if cell_fmt:
+            off = 1 if (header and headers) else 0
+            for (i, j), fmt in cell_fmt.items():
+                if fmt.get("bg"):
+                    cmds.append(("BACKGROUND", (j, i + off), (j, i + off), hexc(fmt["bg"])))
         t.setStyle(TableStyle(cmds))
         return t
 
@@ -616,6 +698,31 @@ class Doc:
         self.story.append(t2)
         self.story.append(Spacer(1, 0.28 * cm))
 
+    def landscape(self, on=True):
+        """Bascule en paysage (ou revient en portrait) : les tableaux larges y respirent."""
+        if on == self._land:
+            return
+        self._land = on
+        if on:
+            sec = self.doc.add_section(WD_SECTION.NEW_PAGE)
+            sec.orientation = WD_ORIENT.LANDSCAPE
+            sec.page_width, sec.page_height = Cm(29.7), Cm(21.0)
+            sec.left_margin = sec.right_margin = Cm(1.9)
+            sec.top_margin, sec.bottom_margin = Cm(1.9), Cm(1.6)
+            self.story.append(NextPageTemplate("land"))
+            self.story.append(PageBreak())
+            self.w_cm = 25.9
+        else:
+            sec = self.doc.add_section(WD_SECTION.NEW_PAGE)
+            sec.orientation = WD_ORIENT.PORTRAIT
+            sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
+            sec.left_margin = sec.right_margin = Cm(1.9)
+            sec.top_margin, sec.bottom_margin = Cm(2.0), Cm(1.7)
+            self.story.append(NextPageTemplate("portrait"))
+            self.story.append(PageBreak())
+            self.w_cm = 17.1
+        self._just_broke = True
+
     def pagebreak(self):
         self.doc.add_page_break()
         self.story.append(PageBreak())
@@ -635,19 +742,21 @@ class Doc:
 
         def on_page(canv, doc):
             canv.saveState()
+            pw, ph = canv._pagesize
+            right = pw - M_R
             if doc.page > 1:
                 canv.setFont("DJ", 7.2)
                 canv.setFillColor(hexc(GRIS))
-                canv.drawString(M_L, PAGE_H - 1.25 * cm, self.doc_ref)
-                canv.drawRightString(PAGE_W - M_R, PAGE_H - 1.25 * cm, self.title)
+                canv.drawString(M_L, ph - 1.25 * cm, self.doc_ref)
+                canv.drawRightString(right, ph - 1.25 * cm, self.title)
                 canv.setStrokeColor(hexc("D0D7E2"))
                 canv.setLineWidth(0.5)
-                canv.line(M_L, PAGE_H - 1.45 * cm, PAGE_W - M_R, PAGE_H - 1.45 * cm)
+                canv.line(M_L, ph - 1.45 * cm, right, ph - 1.45 * cm)
             canv.setFont("DJ", 7.2)
             canv.setFillColor(hexc(GRIS))
-            canv.drawCentredString(PAGE_W / 2, 1.05 * cm, f"{self.footer}   ·   page {doc.page}")
+            canv.drawCentredString(pw / 2, 1.02 * cm, f"{self.footer}   ·   page {doc.page}")
             canv.setStrokeColor(hexc("D0D7E2"))
-            canv.line(M_L, 1.35 * cm, PAGE_W - M_R, 1.35 * cm)
+            canv.line(M_L, 1.3 * cm, right, 1.3 * cm)
             canv.restoreState()
 
         class _Doc(BaseDocTemplate):
@@ -670,6 +779,12 @@ class Doc:
                                  title=self.title, author="Analyse technique indépendante",
                                  subject=self.subtitle)
         frame = Frame(M_L, M_B, CONTENT_W, PAGE_H - M_T - M_B, id="f", showBoundary=0)
-        docpdf.addPageTemplates([PageTemplate(id="all", frames=[frame], onPage=on_page)])
+        LW, LH = landscape(A4)
+        frame_l = Frame(M_L, 1.6 * cm, LW - M_L - M_R, LH - 1.9 * cm - 1.6 * cm,
+                        id="fl", showBoundary=0)
+        docpdf.addPageTemplates([
+            PageTemplate(id="portrait", frames=[frame], onPage=on_page, pagesize=A4),
+            PageTemplate(id="land", frames=[frame_l], onPage=on_page, pagesize=landscape(A4)),
+        ])
         docpdf.build(self.story)
         return dpath, ppath

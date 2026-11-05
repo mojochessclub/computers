@@ -390,3 +390,47 @@ if __name__ == "__main__":
     fig_tco()
     fig_tranches_b()
     print("charts done")
+
+
+# ---------------------------------------------------------------------------
+# Document D — mise en perspective des prix par constructeur
+# ---------------------------------------------------------------------------
+D_PRIX = {
+    "HPE":        {"64": 5.726, "128": 9.1,  "recond": 1.7},
+    "Dell":       {"64": 9.8,   "128": 11.9, "recond": 1.9},
+    "Lenovo":     {"64": 5.4,   "128": 8.2,  "recond": 1.9},
+    "Supermicro": {"64": 6.3,   "128": 8.4,  "recond": None},
+    "ASUS":       {"64": 6.4,   "128": 8.5,  "recond": None},
+}
+
+
+def fig_d_prix():
+    vendors = list(D_PRIX.keys())
+    series = [("64 Go neuf", "64", BLEU_CLAIR, None),
+              ("128 Go neuf", "128", BLEU, None),
+              ("Reconditionné 128 Go", "recond", ORANGE, "//")]
+    n = len(series)
+    w = 0.24
+    fig, ax = plt.subplots(figsize=(8.4, 3.6))
+    for k, (lab, key, col, hatch) in enumerate(series):
+        xs, ys = [], []
+        for i, v in enumerate(vendors):
+            val = D_PRIX[v][key]
+            if val is None:
+                continue
+            xs.append(i + (k - 1) * w)
+            ys.append(val)
+        ax.bar(xs, ys, width=w, color=col, label=lab, hatch=hatch, edgecolor="white", zorder=3)
+        for x, y in zip(xs, ys):
+            ax.text(x, y + 0.20, f"{y:,.1f}".replace(".", ","), ha="center", fontsize=7,
+                    fontweight="bold", color=GRIS)
+    ax.set_xticks(range(len(vendors)))
+    ax.set_xticklabels(vendors, fontsize=8.5, fontweight="bold")
+    ax.set_ylabel("Prix HT équipé (k€)")
+    ax.set_title("Le même besoin, trois niveaux de prix — et cinq constructeurs")
+    ax.legend(frameon=False, fontsize=7.5, loc="upper right")
+    ax.set_ylim(0, 14)
+    ax.text(3.0, 0.35, "pas d'offre\nreconditionnée", fontsize=6.5, color=GRIS, ha="center", style="italic")
+    ax.text(4.0, 0.35, "pas d'offre\nreconditionnée", fontsize=6.5, color=GRIS, ha="center", style="italic")
+    _clean(ax, "y")
+    _save(fig, "fig_d_prix.png")
