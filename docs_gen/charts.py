@@ -434,3 +434,73 @@ def fig_d_prix():
     ax.text(4.0, 0.35, "pas d'offre\nreconditionnée", fontsize=6.5, color=GRIS, ha="center", style="italic")
     _clean(ax, "y")
     _save(fig, "fig_d_prix.png")
+
+
+# --------------------------------------------------------------------------- #
+# Document E — grille des quinze fournisseurs
+E_FOURN = [  # (fournisseur, prix HT de la cible A.2 f, zone)
+    ("PC21.fr", 8600, "France"), ("ServerMall", 13800, "France"), ("Senetic", 8800, "France / UE"),
+    ("MonParcInformatique", 9100, "France"), ("LDLC Pro", 10200, "France"),
+    ("Inmac wstore", 10500, "France"), ("Bechtle", 9700, "UE"), ("Redcorp", 9000, "UE"),
+    ("Insight", 9900, "UE"), ("Arena Bilgisayar", 8800, "Turquie"), ("Mindware", 8600, "Dubaï"),
+    ("Alibaba.com", 7300, "Chine"), ("Mustek", 9500, "Afrique du Sud"),
+    ("GED-SERVICES", 10800, "Afrique"), ("CDW", 9300, "USA"),
+]
+
+
+def _bande_e(p):
+    return VERT if p <= 9500 else (JAUNE if p <= 12500 else ORANGE)
+
+
+def fig_e_fournisseurs():
+    data = sorted(E_FOURN, key=lambda r: r[1])
+    names = [r[0] for r in data]
+    vals = [r[1] for r in data]
+    fig, ax = plt.subplots(figsize=(9.6, 2.95))
+    y = range(len(data))
+    ax.barh(list(y), vals, color=[_bande_e(v) for v in vals], height=0.72, zorder=3)
+    for i, v in enumerate(vals):
+        ax.text(v + 130, i, f"{v:,}".replace(",", " ") + " €", va="center", fontsize=7.4,
+                fontweight="bold", color=GRIS,
+                bbox=dict(facecolor="white", edgecolor="none", pad=0.9, alpha=0.9))
+    ax.set_yticks(list(y))
+    ax.set_yticklabels(names, fontsize=8)
+    ax.axvline(9500, color=VERT, linestyle="--", linewidth=1.1, zorder=4)
+    ax.text(9650, -1.55, "enveloppe cible 9 500 €", fontsize=7.5, color=VERT, fontweight="bold")
+    ax.set_xlim(0, 15800)
+    ax.set_ylim(-1.9, len(data) - 0.4)
+    ax.set_xlabel("Prix HT de la cible AMD 128 Go · 2×1,92 To NVMe RAID1 · 16 cœurs · 2×10 GbE")
+    ax.set_title("La même configuration, du moins cher au plus cher")
+    ax.xaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v/1000:.0f} k€"))
+    _clean(ax, "x")
+    _save(fig, "fig_e_fournisseurs.png")
+
+
+def fig_e_familles():
+    labels = ["AMD\n64 Go", "AMD\n128 Go", "Intel\n64 Go", "Intel\n128 Go"]
+    vals = [7000, 8600, 14700, 16300]
+    cols = [_bande_e(v) for v in vals]
+    fig, ax = plt.subplots(figsize=(9.6, 2.05))
+    bars = ax.bar(labels, vals, color=cols, width=0.5, zorder=3)
+    for b, v in zip(bars, vals):
+        if abs(v - 9500) < 1600:      # le libellé croiserait la ligne des 9 500 €
+            ax.text(b.get_x() + b.get_width() / 2, v / 2, f"{v:,}".replace(",", " ") + " €",
+                    ha="center", va="center", fontsize=9.5, fontweight="bold", color="white")
+        else:
+            ax.text(b.get_x() + b.get_width() / 2, v + 350, f"{v:,}".replace(",", " ") + " €",
+                    ha="center", fontsize=9, fontweight="bold", color=GRIS)
+    ax.axhline(9500, color=VERT, linestyle="--", linewidth=1.1, zorder=4)
+    ax.text(1.5, 10400, "enveloppe cible 9 500 €", fontsize=8, color=VERT, fontweight="bold",
+            ha="center", bbox=dict(facecolor="white", edgecolor="none", pad=1.2))
+    ax.set_ylim(0, 20000)
+    ax.set_yticks([0, 5000, 10000, 15000, 20000])
+    ax.set_ylabel("Prix HT (PC21)")
+    ax.set_title("Même besoin (NVMe 16 cœurs, RAID1, 2×10 GbE) : deux familles, deux mondes")
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v/1000:.0f} k€"))
+    _clean(ax, "y")
+    _save(fig, "fig_e_familles.png")
+
+
+if __name__ == "__main__":
+    fig_e_fournisseurs()
+    fig_e_familles()
