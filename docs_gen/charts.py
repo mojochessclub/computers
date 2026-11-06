@@ -504,3 +504,35 @@ def fig_e_familles():
 if __name__ == "__main__":
     fig_e_fournisseurs()
     fig_e_familles()
+
+
+# --------------------------------------------------------------------------- #
+# Document F — face-à-face AMD / Intel
+def fig_f_duel():
+    pairs = ["HPE\nDL325 / DL380", "Lenovo\nSR645 / SR650", "Dell\nR6615 / R660"]
+    amd = [8600, 8500, 11900]
+    intel = [14400, 13200, 15300]
+
+    fig, ax = plt.subplots(figsize=(9.6, 3.0))
+    x = range(len(pairs))
+    w = 0.34
+    b1 = ax.bar([i - w / 2 for i in x], amd, width=w, color=VERT, zorder=3,
+                label="AMD — EPYC 9124 (16 cœurs, 3,0 GHz) · indice 48")
+    b2 = ax.bar([i + w / 2 for i in x], intel, width=w, color=ORANGE, zorder=3,
+                label="Intel — Xeon Silver 4510 (12 cœurs, 2,4 GHz) · indice 29")
+    for bars, vals, idx in ((b1, amd, 48), (b2, intel, 29)):
+        for b, v in zip(bars, vals):
+            ax.text(b.get_x() + b.get_width() / 2, v + 260, f"{v:,}".replace(",", " ") + " €",
+                    ha="center", fontsize=9, fontweight="bold", color=GRIS)
+            ax.text(b.get_x() + b.get_width() / 2, v - 900, f"indice {idx}", ha="center",
+                    va="top", fontsize=7.5, color="white", fontweight="bold")
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(pairs, fontsize=8.5, fontweight="bold")
+    ax.set_ylabel("Prix HT, configuration identique")
+    ax.set_ylim(0, 17500)
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v/1000:.0f} k€"))
+    ax.set_title("Même configuration : l'AMD coûte moins et calcule plus")
+    ax.legend(frameon=False, fontsize=7.8, loc="upper center", bbox_to_anchor=(0.5, -0.22),
+              ncol=2)
+    _clean(ax, "y")
+    _save(fig, "fig_f_duel.png")
