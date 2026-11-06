@@ -1,6 +1,6 @@
 # Livrables — dossier « Rapatriement de l'hyperviseur »
 
-Neuf documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
+Dix documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
 (`docs_gen/`) afin que les deux versions soient rigoureusement identiques.
 
 | Fichier | Contenu | Volume |
@@ -13,6 +13,7 @@ Neuf documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un
 | `H_DL325 Gen11_six_processeurs_trois_fournisseurs` | **Fiche direction — HPE ProLiant DL325 Gen11.** Le tableau du relevé conservé et descendu jusqu'au prix : les **six processeurs** du dossier en colonnes (les trois admissibles sur ce châssis — EPYC 9124 · 9125 · 9224 — et les trois refusés pour raison de socket), les **composants complétés verticalement** (128 Go DDR5 en 4 × 32 Go, 2 × 1,92 To en RAID1, 2 × 10 GbE, alimentation redondante, iLO 6, garantie 3 ans), puis les **tarifs PC21.fr, Senetic et ServerMall** et **le lien direct** de chacun. Suivent le face-à-face des trois canaux, la règle de compatibilité des sockets, la fiche constructeur et la synthèse. Prix retenu : **8 600 € (PC21)**. | 6 pages · 1 graphique · 1 page en paysage · 11 liens |
 | `I_DL320 Gen11_six_processeurs_trois_fournisseurs` | **Fiche direction — HPE ProLiant DL320 Gen11.** Le tableau du relevé conservé et descendu jusqu'au prix : les **six processeurs** du dossier en colonnes (les trois admissibles sur ce châssis — Xeon Silver 4510 · 4410Y · Gold 6426Y — et les trois refusés pour raison de socket), les **composants complétés verticalement** (128 Go DDR5 en 4 × 32 Go, 2 × 1,92 To en RAID1, 2 × 10 GbE, alimentation redondante, iLO 6, garantie 3 ans), puis les **tarifs PC21.fr, Senetic et ServerMall** et **le lien direct** de chacun. Suivent le face-à-face des trois canaux, la règle de compatibilité des sockets, la fiche constructeur et la synthèse. Prix retenu : **9 100 € (PC21)**. | 6 pages · 1 graphique · 1 page en paysage · 11 liens |
 | `J_DL380 Gen11_six_processeurs_trois_fournisseurs` | **Fiche direction — HPE ProLiant DL380 Gen11.** Le tableau du relevé conservé et descendu jusqu'au prix : les **six processeurs** du dossier en colonnes (les trois admissibles sur ce châssis — Xeon Silver 4510 · 4410Y · Gold 6426Y — et les trois refusés pour raison de socket), les **composants complétés verticalement** (128 Go DDR5 en 4 × 32 Go, 2 × 1,92 To en RAID1, 2 × 10 GbE, alimentation redondante, iLO 6, garantie 3 ans), puis les **tarifs PC21.fr, Senetic et ServerMall** et **le lien direct** de chacun. Suivent le face-à-face des trois canaux, la règle de compatibilité des sockets, la fiche constructeur et la synthèse. Prix retenu : **9 900 € (PC21)**. | 6 pages · 1 graphique · 1 page en paysage · 11 liens |
+| `K_Demande_de_devis_ferme_trois_machines_trois_fournisseurs` | **Dossier de consultation — devis ferme.** Ce qu'est (et n'est pas) un prix ferme, le **cahier des charges à envoyer tel quel** (11 postes, tolérances), les **neuf configurations à chiffrer** (3 machines × 3 processeurs admissibles) et trois options séparées, les **trois canaux** de consultation (PC21 formulaire + 01 43 00 43 08, Senetic, ServerMall avec courriel pré-rempli), le **message prêt à copier**, la **grille de dépouillement** et les quatre règles qui départagent. | 6 pages · 7 tableaux · 1 page en paysage · 7 liens |
 | `B_Analyse_independante_benchmark_appro` | **Analyse indépendante construite de A à Z** (sans reprendre les conclusions initiales) : lecture critique des mesures, règles de dimensionnement, architecture Proxmox, nomenclature chiffrée, **4 recommandations HPE**, alternatives Dell / Lenovo / Supermicro, **4 circuits d'achat en France**, benchmark de 9 candidats, coût total, plan d'appro en 8 semaines, questions à poser aux revendeurs. | 14 pages · 18 tableaux · 5 graphiques |
 
 ## Ce que les deux documents démontrent
@@ -52,6 +53,7 @@ cd docs_gen
 ../.venv/bin/python doc_f.py       # livrables/F_*.docx + .pdf
 ../.venv/bin/python doc_g.py       # livrables/G_*.docx + .pdf
 ../.venv/bin/python doc_h.py       # livrables/H_*, I_*, J_*.docx + .pdf
+../.venv/bin/python doc_k.py       # livrables/K_*.docx + .pdf
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),
