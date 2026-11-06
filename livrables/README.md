@@ -1,6 +1,6 @@
 # Livrables — dossier « Rapatriement de l'hyperviseur »
 
-Cinq documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
+Six documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
 (`docs_gen/`) afin que les deux versions soient rigoureusement identiques.
 
 | Fichier | Contenu | Volume |
@@ -9,6 +9,7 @@ Cinq documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un
 | `D_Cinq_constructeurs_tableaux_comparatifs` | **Proposition D — cinq tableaux, un par constructeur** (HPE, Dell, Lenovo, Supermicro, ASUS). Chaque tableau reprend les lignes de la fiche de l'existant et décline 3 configurations (64 Go / 128 Go / gamme supérieure), avec Product Number, fournisseur, tarif et lien constructeur vérifié. Code couleur vert / jaune / orange selon la conformité aux exigences. | 10 pages · 10 tableaux · 5 pages en paysage |
 | `F_Seuils_abaisses_duels_AMD_Intel_et_prix_par_modele` | **Proposition F — seuil CPU ramené à 2,4 GHz (2,0–2,39 toléré).** Ce qui change par rapport à E, les **quinze fournisseurs classés par prix croissant**, la règle des trois bandes de fréquence, le **face-à-face AMD / Intel** sur trois constructeurs (prix, indice de calcul, prix du point d'indice), les grilles A et B au nouveau seuil, puis **huit pages de prix par modèle** (HPE DL325, Lenovo SR645, Dell R6615, Supermicro AS-1115CS-TNR, ASUS RS520A-E12, HPE DL380, Lenovo SR650, Dell R660) avec, pour chacune des quinze lignes, **le lien direct vers l'offre du fournisseur**. Matrices C à F et budget. | 24 pages · 30 tableaux · 1 graphique · 18 pages en paysage · **151 liens** |
 | `E_Quinze_fournisseurs_et_matrices_composants` | **Proposition E — grille de 15 fournisseurs et matrices composants.** Quinze revendeurs sur 7 zones (France, UE, Turquie, Émirats, Chine, Afrique, États-Unis), chacun avec son lien vérifié et son coefficient de prix. Puis **24 configurations** (AMD ≥ 2,5 GHz et Intel ≥ 2,5 GHz × 64 / 128 Go × six variantes disques a–f), chiffrées chez les 15 fournisseurs, avec code couleur vert / jaune / orange et statut relevé / indicatif rappelé à chaque tableau. Suivent les matrices **C** (processeurs), **D** (mémoire), **E** (disques), **F** (RAID, réseau, périphériques) et le budget complet. | 15 pages · 21 tableaux · 2 graphiques · 11 pages en paysage |
+| `G_Six_processeurs_face_a_face_AMD_Intel_et_prix_par_modele` | **Étude processeurs — les six CPU relevés** (Xeon Silver 4510, 4410Y, Gold 6426Y, EPYC 9124, 9125, 9224), rédigée de façon impersonnelle par GED-SERVICES : **caractéristiques complétées** (threads, socket, cache, mémoire, PCIe, prix par cœur, indice, indice par k€, fin de commercialisation), règle des trois bandes à 2,4 GHz, **face-à-face AMD / Intel** sur pièces puis en machine, quinze fournisseurs classés, **grille six processeurs × quinze fournisseurs**, **huit pages de prix par modèle** avec un lien par fournisseur, synthèse, et deux annexes (mémoire, disques, RAID-réseau, budget, TDP ; méthode et statut des liens). Aucune mention des documents antérieurs. | 22 pages · 25 tableaux · 2 graphiques · 15 pages en paysage · **143 liens** |
 | `B_Analyse_independante_benchmark_appro` | **Analyse indépendante construite de A à Z** (sans reprendre les conclusions initiales) : lecture critique des mesures, règles de dimensionnement, architecture Proxmox, nomenclature chiffrée, **4 recommandations HPE**, alternatives Dell / Lenovo / Supermicro, **4 circuits d'achat en France**, benchmark de 9 candidats, coût total, plan d'appro en 8 semaines, questions à poser aux revendeurs. | 14 pages · 18 tableaux · 5 graphiques |
 
 ## Ce que les deux documents démontrent
@@ -22,6 +23,9 @@ Cinq documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un
 - Le rapatriement devient rentable si la facture de location actuelle dépasse **≈ 550 €/mois HT**.
 - À exigences égales, **HPE, Lenovo et Supermicro se tiennent en 128 Go entre 8 200 et 8 500 € HT**,
   quand Dell (canal direct) affiche 16 411 € et le 2U HPE 16 861 €.
+- Sur les six processeurs du relevé, **l'EPYC 9124 offre le meilleur rendement** : 48 points
+  d'indice pour 1 050 €, soit 45,7 points par millier d'euros, contre 27,4 pour le Xeon Silver 4510
+  au même prix et 16,7 pour le Gold 6426Y (2,4 fois plus cher).
 - Abaisser le seuil à 2,4 GHz **ne réduit pas l'écart AMD / Intel** : il rend seulement le Xeon
   Silver 4510 éligible (14 400 € au lieu de 16 300 €, mais avec 12 cœurs au lieu de 16).
 - Sur un même serveur, **l'écart entre le fournisseur le moins cher et le plus cher atteint 89 %** ;
@@ -39,6 +43,7 @@ cd docs_gen
 ../.venv/bin/python doc_d.py       # livrables/D_*.docx + .pdf
 ../.venv/bin/python doc_e.py       # livrables/E_*.docx + .pdf
 ../.venv/bin/python doc_f.py       # livrables/F_*.docx + .pdf
+../.venv/bin/python doc_g.py       # livrables/G_*.docx + .pdf
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),

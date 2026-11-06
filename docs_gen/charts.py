@@ -536,3 +536,73 @@ def fig_f_duel():
               ncol=2)
     _clean(ax, "y")
     _save(fig, "fig_f_duel.png")
+
+
+# --------------------------------------------------------------------------- #
+# Étude G — face-à-face processeurs
+def fig_g_cpu():
+    """Prix (k€) x indice de calcul, six processeurs."""
+    cpus = [
+        ("EPYC 9124", 1050, 48.0, "AMD", (10, 8)),
+        ("EPYC 9125", 1300, 41.6, "AMD", (12, -4)),
+        ("EPYC 9224", 2360, 60.0, "AMD", (-6, 9)),
+        ("Xeon Silver 4510", 1050, 28.8, "Intel", (12, -4)),
+        ("Xeon Silver 4410Y", 900, 24.0, "Intel", (9, -13)),
+        ("Xeon Gold 6426Y", 2400, 40.0, "Intel", (-6, -22)),
+    ]
+    fig, ax = plt.subplots(figsize=(9.4, 3.5))
+    for nom, prix, idx, fam, off in cpus:
+        col = VERT if fam == "AMD" else ORANGE
+        ax.scatter(prix / 1000, idx, s=170, color=col, zorder=4, edgecolor="white", linewidth=1.6)
+        ha = "center" if abs(off[0]) <= 6 else ("left" if off[0] > 0 else "right")
+        ax.annotate(f"{nom}\n{idx:.0f}".replace(".", ","), (prix / 1000, idx),
+                    textcoords="offset points", xytext=off, ha=ha,
+                    va="bottom" if off[1] > 0 else "top",
+                    fontsize=7.2, color=GRIS, fontweight="bold")
+    xs = [0.60, 2.80]
+    for eff, lab, lx in ((48, "48 points / k€", 0.685), (20, "20 points / k€", 1.62)):
+        ax.plot(xs, [x * eff for x in xs], ":", color=GRIS_CLAIR, linewidth=1.1, zorder=1)
+        ax.text(lx + 0.02, lx * eff + 1.2, lab, fontsize=6.8, color=GRIS, ha="left", va="bottom",
+                style="italic")
+    ax.set_xlim(0.6, 2.85)
+    ax.set_ylim(16, 68)
+    ax.set_xlabel("Prix du processeur (k€ HT)")
+    ax.set_ylabel("Indice (cœurs × GHz)")
+    ax.set_title("Six processeurs : le calcul obtenu pour l'euro dépensé")
+    ax.legend(handles=[Patch(color=VERT, label="AMD EPYC"), Patch(color=ORANGE, label="Intel Xeon")],
+              frameon=False, fontsize=8, loc="upper left", bbox_to_anchor=(0.14, 0.98))
+    _clean(ax, "both")
+    _save(fig, "fig_g_cpu.png")
+
+
+def fig_g_face():
+    pairs = ["HPE\nDL325 / DL380", "Lenovo\nSR645 / SR650", "Dell\nR6615 / R660"]
+    amd = [8600, 8500, 11900]
+    intel = [14400, 13200, 15300]
+    fig, ax = plt.subplots(figsize=(9.6, 2.9))
+    x = range(len(pairs))
+    w = 0.34
+    b1 = ax.bar([i - w / 2 for i in x], amd, width=w, color=VERT, zorder=3,
+                label="AMD — EPYC 9124 (16 cœurs, 3,0 GHz) · indice 48")
+    b2 = ax.bar([i + w / 2 for i in x], intel, width=w, color=ORANGE, zorder=3,
+                label="Intel — Xeon Silver 4510 (12 cœurs, 2,4 GHz) · indice 29")
+    for bars, vals, idx in ((b1, amd, 48), (b2, intel, 29)):
+        for b, v in zip(bars, vals):
+            ax.text(b.get_x() + b.get_width() / 2, v + 260, f"{v:,}".replace(",", " ") + " €",
+                    ha="center", fontsize=9, fontweight="bold", color=GRIS)
+            ax.text(b.get_x() + b.get_width() / 2, v - 900, f"indice {idx}", ha="center",
+                    va="top", fontsize=7.5, color="white", fontweight="bold")
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(pairs, fontsize=8.5, fontweight="bold")
+    ax.set_ylabel("Prix HT, configuration identique")
+    ax.set_ylim(0, 17500)
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v/1000:.0f} k€"))
+    ax.set_title("Même configuration : l'AMD coûte moins et calcule plus")
+    ax.legend(frameon=False, fontsize=7.8, loc="upper center", bbox_to_anchor=(0.5, -0.22), ncol=2)
+    _clean(ax, "y")
+    _save(fig, "fig_g_face.png")
+
+
+if __name__ == "__main__":
+    fig_g_cpu()
+    fig_g_face()
