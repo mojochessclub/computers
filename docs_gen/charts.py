@@ -606,3 +606,29 @@ def fig_g_face():
 if __name__ == "__main__":
     fig_g_cpu()
     fig_g_face()
+
+
+# --------------------------------------------------------------------------- #
+# Étude H/I/J — trois fournisseurs, trois processeurs d'une même machine
+def fig_h_fourn(name, labels, sm, p21, sen, titre):
+    fig, ax = plt.subplots(figsize=(9.6, 3.0))
+    x = range(len(labels))
+    w = 0.26
+    series = [("ServerMall — configurateur", sm, BLEU_CLAIR),
+              ("PC21.fr — fiche / modèle", p21, VERT),
+              ("Senetic — recherche", sen, ORANGE)]
+    for k, (lab, vals, col) in enumerate(series):
+        pos = [i + (k - 1) * w for i in x]
+        b = ax.bar(pos, vals, width=w, color=col, zorder=3, label=lab)
+        for bb, v in zip(b, vals):
+            ax.text(bb.get_x() + bb.get_width() / 2, v + 130, f"{v/1000:.1f}".replace(".", ","),
+                    ha="center", fontsize=7.6, fontweight="bold", color=GRIS)
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(labels, fontsize=8.6, fontweight="bold")
+    ax.set_ylabel("Prix HT du serveur configuré")
+    ax.set_ylim(0, max(max(sm), max(p21), max(sen)) * 1.18)
+    ax.yaxis.set_major_formatter(mticker.FuncFormatter(lambda v, _: f"{v/1000:.0f} k€"))
+    ax.set_title(titre)
+    ax.legend(frameon=False, fontsize=7.6, ncol=3, loc="upper center", bbox_to_anchor=(0.5, -0.2))
+    _clean(ax, "y")
+    _save(fig, name)
