@@ -115,8 +115,8 @@ CAND = next(r for r in ROWS if r["asin"] == "B0D76M6T6R")
 
 
 # --------------------------------------------------------------------------- #
-def build_xlsx(path):
-    from openpyxl import Workbook
+def ecrire_machines(ws):
+    """Remplit une feuille avec les 28 machines (24 colonnes), filtre et mise en page."""
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
 
@@ -133,10 +133,6 @@ def build_xlsx(path):
         ("Réserve", 52, "réserve"), ("Lien Amazon", 42, "lien"),
     ]
 
-    wb = Workbook()
-    ws = wb.active
-    ws.title = "Benchmark HP"
-
     head_fill = PatternFill("solid", fgColor="1F3B63")
     head_font = Font(color="FFFFFF", bold=True, size=9, name="Calibri")
     thin = Side(style="thin", color="D0D7E2")
@@ -152,25 +148,17 @@ def build_xlsx(path):
 
     band_fill = {c: PatternFill("solid", fgColor=CLASSES[c][1]) for c in ORDRE}
 
-    def num(x):
+    def fl(x):
         try:
             return float(str(x).replace(",", "."))
         except ValueError:
             return x
 
     for i, r in enumerate(ROWS, start=2):
-        def fl(x):
-            try:
-                return float(str(x).replace(",", "."))
-            except ValueError:
-                return x
-
         fmin, fmax = freq_pair(r["fréquence"])
         values = {"fmin": fl(fmin), "fmax": fl(fmax), "ram": go(r["ram"]) or r["ram"]}
         for c, (_label, _w, key) in enumerate(cols, 1):
             val = r[key] if key not in values else values[key]
-            if key == "écran" and val == "non inclus":
-                val = "non inclus"
             cell = ws.cell(row=i, column=c, value=val)
             cell.font = Font(size=9, name="Calibri")
             cell.border = Border(bottom=thin)
@@ -191,9 +179,8 @@ def build_xlsx(path):
                 cell.font = Font(size=9, name="Calibri", color="1155CC", underline="single")
             elif key in ("réserve", "modèle", "disque", "écran"):
                 cell.alignment = Alignment(wrap_text=True, vertical="top")
-            if key in ("id", "classe", "modèle", "réserve") or True:
-                if cell.fill.fill_type is None:
-                    cell.fill = band_fill[r["code"]]
+            if cell.fill.fill_type is None:
+                cell.fill = band_fill[r["code"]]
             if key == "classe":
                 cell.font = Font(size=9, bold=True, name="Calibri", color=CLASSES[r["code"]][2])
             if key == "id":
@@ -211,6 +198,16 @@ def build_xlsx(path):
     ws.sheet_properties.pageSetUpPr.fitToPage = True
     ws.sheet_view.zoomScale = 90
     ws.sheet_properties.tabColor = "1F3B63"
+
+
+def build_xlsx(path):
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment, Font
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Benchmark HP"
+    ecrire_machines(ws)
 
     # ---- feuille Méthode
     wb.properties.creator = "GED-SERVICES"
@@ -247,6 +244,68 @@ def build_xlsx(path):
 
     wb.save(path)
     return path
+
+
+def tableau_lignes(doc, prefix="Tableau"):
+    """Légende des quatre classes + le tableau unique des 28 machines (A3 paysage)."""
+    legend = []
+    for c in ORDRE:
+        legend.append(f"**{CLASSES[c][0]} · {COMPTE[c]}** — {REGLE[c]}")
+    cell_fmt = {(0, j): {"bg": CLASSES[c][1], "color": CLASSES[c][2], "b": False}
+                for j, c in enumerate(ORDRE)}
+    doc.table([], [legend], [1, 1, 1, 1], font=7.4, header=False, zebra=False,
+              cell_fmt=cell_fmt)
+
+    headers = ["ID", "Machine", "Format", "Processeur", "Année", "Cœurs", "Fréq. GHz", "RAM",
+               "Disque", "Écran", "Système", "Réseau", "Tarif €", "Total livré €", "FCFA",
+               "Classe", "Réserve / motif", "Lien"]
+    widths = [4.2, 12.8, 4.0, 8.8, 4.0, 4.6, 5.0, 4.6, 7.4, 6.2, 7.0, 5.0,
+              5.6, 6.0, 6.4, 7.6, 13.4, 4.2]
+    aligns = ["c", "l", "c", "l", "c", "c", "c", "c", "l", "l", "l", "l",
+              "r", "r", "r", "l", "l", "c"]
+
+    body, row_bg, cfmt = [], {}, {}
+    for i, r in enumerate(ROWS):
+        body.append([
+            r["id"], r["modèle"], r["format"], r["cpu"], r["année"] or "n. c.", r["cœurs"],
+            court_freq(r["fréquence"]), r["ram"], r["disque"],
+            "—" if r["écran"] == "non inclus" else r["écran"],
+            r["os"], r["réseau"],
+            euro(r["prix"]), euro(r["livré"]), fcfa(r["livré"]),
+            r["classe"], r["réserve"], "[ouvrir](%s)" % r["lien"],
+        ])
+        row_bg[i] = CLASSES[r["code"]][1]
+        cfmt[(i, 15)] = {"color": CLASSES[r["code"]][2], "b": True}
+        cfmt[(i, 0)] = {"b": True}
+        if r["asin"] == CAND["asin"]:
+            cfmt[(i, 1)] = {"b": True, "color": "1F3B63"}
+
+    doc.table(headers, body, widths, font=6.9, header=True, zebra=False, aligns=aligns,
+              row_bg=row_bg, cell_fmt=cfmt,
+              caption=prefix + " — 28 machines fixes HP, classées par total livré croissant. "
+                      "Prix TTC du 5 novembre 2026, frais de port compris dans le total livré ; "
+                      "1 € = 655,957 FCFA. La couleur de la ligne donne la classe, la colonne "
+                      "« Réserve » dit pourquoi. n. c. = non communiqué.")
+
+
+def tableau_classes(doc, prefix="Tableau"):
+    """Récapitulatif : une ligne par classe, avec la suite à donner."""
+    recap = []
+    actions = {
+        "C": "retenir ; prévoir les 32 Go",
+        "M": "corriger le point manquant (licence Pro, 512 Go, clavier, système à confirmer)",
+        "I": "demander la fiche au vendeur avant de classer",
+        "N": "écarter",
+    }
+    for c in ORDRE:
+        membres = ", ".join(r["id"] for r in ROWS if r["code"] == c)
+        recap.append([CLASSES[c][0], str(COMPTE[c]), membres, actions[c]])
+    doc.table(["Classe", "Nb machines", "Machines", "Suite à donner"], recap,
+              [3.6, 1.8, 6.0, 5.7], font=8.2, header=True, zebra=False, first_col_bold=True,
+              row_bg={i: CLASSES[c][1] for i, c in enumerate(ORDRE)},
+              aligns=["l", "c", "l", "l"],
+              caption=prefix + " — Quatre classes, un seul critère de lecture : le nombre de points du socle "
+                      "tenus (16 Go, 512 Go, Windows 11 Pro, processeur 2023 ou plus récent).")
 
 
 # --------------------------------------------------------------------------- #
@@ -289,68 +348,13 @@ def build_doc():
     )
 
     doc.landscape3(True)
-
-    # --- légende des quatre classes
-    legend = []
-    for c in ORDRE:
-        legend.append(f"**{CLASSES[c][0]} · {COMPTE[c]}** — {REGLE[c]}")
-    cell_fmt = {(0, j): {"bg": CLASSES[c][1], "color": CLASSES[c][2], "b": False}
-                for j, c in enumerate(ORDRE)}
-    doc.table([], [legend], [1, 1, 1, 1], font=7.4, header=False, zebra=False,
-              cell_fmt=cell_fmt)
-
-    # --- tableau unique
-    headers = ["ID", "Machine", "Format", "Processeur", "Année", "Cœurs", "Fréq. GHz", "RAM",
-               "Disque", "Écran", "Système", "Réseau", "Tarif €", "Total livré €", "FCFA",
-               "Classe", "Réserve / motif", "Lien"]
-    widths = [4.2, 12.8, 4.0, 8.8, 4.0, 4.6, 5.0, 4.6, 7.4, 6.2, 7.0, 5.0,
-              5.6, 6.0, 6.4, 7.6, 13.4, 4.2]
-    aligns = ["c", "l", "c", "l", "c", "c", "c", "c", "l", "l", "l", "l",
-              "r", "r", "r", "l", "l", "c"]
-
-    body, row_bg, cfmt = [], {}, {}
-    for i, r in enumerate(ROWS):
-        body.append([
-            r["id"], r["modèle"], r["format"], r["cpu"], r["année"] or "n. c.", r["cœurs"],
-            court_freq(r["fréquence"]), r["ram"], r["disque"],
-            "—" if r["écran"] == "non inclus" else r["écran"],
-            r["os"], r["réseau"],
-            euro(r["prix"]), euro(r["livré"]), fcfa(r["livré"]),
-            r["classe"], r["réserve"], "[ouvrir](%s)" % r["lien"],
-        ])
-        row_bg[i] = CLASSES[r["code"]][1]
-        cfmt[(i, 15)] = {"color": CLASSES[r["code"]][2], "b": True}
-        cfmt[(i, 0)] = {"b": True}
-        if r["asin"] == CAND["asin"]:
-            cfmt[(i, 1)] = {"b": True, "color": "1F3B63"}
-
-    doc.table(headers, body, widths, font=6.9, header=True, zebra=False, aligns=aligns,
-              row_bg=row_bg, cell_fmt=cfmt,
-              caption="Tableau unique — 28 machines fixes HP, classées par total livré croissant. "
-                      "Prix TTC du 5 novembre 2026, frais de port compris dans le total livré ; "
-                      "1 € = 655,957 FCFA. La couleur de la ligne donne la classe, la colonne "
-                      "« Réserve » dit pourquoi. n. c. = non communiqué.")
+    tableau_lignes(doc)
 
     # --- retour au portrait, conclusion courte
     doc.landscape3(False)
 
     doc.h1_plain("Les quatre classes, et ce qu'il faut en faire")
-    recap = []
-    actions = {
-        "C": "retenir ; prévoir les 32 Go",
-        "M": "corriger le point manquant (licence Pro, 512 Go, clavier, système à confirmer)",
-        "I": "demander la fiche au vendeur avant de classer",
-        "N": "écarter",
-    }
-    for c in ORDRE:
-        membres = ", ".join(r["id"] for r in ROWS if r["code"] == c)
-        recap.append([CLASSES[c][0], str(COMPTE[c]), membres, actions[c]])
-    doc.table(["Classe", "Nb machines", "Machines", "Suite à donner"], recap,
-              [3.6, 1.8, 6.0, 5.7], font=8.2, header=True, zebra=False, first_col_bold=True,
-              row_bg={i: CLASSES[c][1] for i, c in enumerate(ORDRE)},
-              aligns=["l", "c", "l", "l"],
-              caption="Quatre classes, un seul critère de lecture : le nombre de points du socle "
-                      "tenus (16 Go, 512 Go, Windows 11 Pro, processeur 2023 ou plus récent).")
+    tableau_classes(doc)
 
     doc.h1_plain("Ce que le tableau dit")
     doc.p("**Quatre machines tiennent le socle** : %s. Aucune n'est livrée en 32 Go ; "
