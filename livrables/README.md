@@ -1,6 +1,6 @@
 # Livrables — dossier « Rapatriement de l'hyperviseur »
 
-Dix-sept documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
+Dix-huit documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
 (`docs_gen/`) afin que les deux versions soient rigoureusement identiques.
 
 | Fichier | Contenu | Volume |
@@ -22,6 +22,7 @@ Dix-sept documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depui
 | `P_Mail_a_Jad_poste_fixe_16_Go_ou_32_Go` | **Le courriel d'accompagnement, une page, sans détour** : le besoin, le 16 Go contre le 32 Go avec le chiffre final, le marché des cinq distributeurs, la réserve sur les prix (indicatifs, hebdomadaires, hors livraison), et l'avis en une phrase. Il annonce la note en pièce jointe, PDF et Word. | 1 page |
 | `Q_Note_postes_fixes_cible_marche_et_candidat_HP_Elite_800_G9_Mini` | **La note refaite, dans l'ordre demandé : cible → marché → candidat → justifications.** Chapitre 1, **la cible matérielle** : trois profils d'usage, seuil technique seul, sans fourchette de prix. Chapitre 2, **ce que le marché propose réellement** : les huit fixes 16 Go / 512 Go / Windows 11 Pro, prix TTC et équivalent FCFA, **un lien par machine**, puis les **cinq distributeurs** et le statut des prix (relevés du 5 novembre 2026, **aucun frais de livraison indiqué**). Chapitre 3, **le candidat HP critère par critère** (21 points, 14 conformes / 6 à surveiller / 1 bloquant). Chapitre 4, **les justifications** : 32 Go, coût réel du passage (335,95 € / 593,95 €), face-à-face des trois machines à 32 Go, format et enveloppe thermique, garantie. Chapitre 5, **recommandation GED-SERVICES** sous trois conditions, puis sources et méthode. Aucun commentaire de version, aucun encadré d'avis personnel. | 7 pages · 6 tableaux · 14 liens |
 | `HP/Benchmark_postes_fixes_HP_750_1250_euros` | **Benchmark des postes fixes HP de 750 à 1 250 €, sans commentaire : uniquement les faits.** Les **28 machines fixes HP neuves** de la page de résultats Amazon.fr, classées par total livré croissant (872,46 € à 1 327,34 €), chacune avec **prix TTC, frais de port, total livré, équivalent FCFA** (1 € = 655,957), **processeur, génération, cœurs / threads, fréquences, RAM et type, disque et type, écran, clavier-souris, réseau, garantie, licence, format** et **lien Amazon**. Trois tableaux liés par l'identifiant M01–M28 : prix et liens, technique, conformité à la cible (6 conformes-bas, 12 à compléter, 10 hors cible) avec le motif de chaque réserve. Le candidat — **HP Elite 800 G9 Mini, 1 140,18 € = 747 909 FCFA** — est surligné. Le classeur `.xlsx` joint reprend les 38 colonnes avec **filtre actif sur chaque colonne** et volets figés. | 5 pages · 3 tableaux (paysage) · 28 liens · + classeur filtrable |
+| `HP/Benchmark_postes_fixes_HP_750_1250_euros_version_B` | **Version B — un seul tableau, quatre classes.** Les trois tableaux de la version A réunis en **une table unique de 28 lignes et 18 colonnes** (paysage A3) : prix, port compris dans le total, francs CFA, processeur, année, cœurs, fréquences, mémoire, disque, écran, système, réseau, **lien** et **classe** sur la même ligne. Chaque ligne est colorée : **4 conformes** (16 Go, 512 Go, Windows 11 Pro, plateforme 2023 ou plus récente), **9 moyennement conformes** (un point manquant, identifié dans la colonne Réserve : licence Famille, 256 Go, clavier allemand, système à confirmer), **10 incertaines** (processeur, mémoire ou disque non communiqués — donc non classables sans la fiche), **5 non conformes** (8 Go, plateforme 2017-2018, Windows 10, reconditionné). Page de synthèse : récapitulatif des quatre classes avec la suite à donner, quatre constats, méthode. Le classeur `.xlsx` porte les mêmes données en couleurs, avec **filtre automatique lisible dans Excel comme dans LibreOffice Calc**. | 3 pages · 1 tableau A3 paysage · 28 liens · + classeur filtrable |
 
 ## Ce que les documents démontrent
 
@@ -72,10 +73,11 @@ cd docs_gen
 ../.venv/bin/python doc_p_mail.py  # livrables/P_Mail_*.docx + .pdf
 ../.venv/bin/python doc_q.py       # livrables/Q_*.docx + .pdf
 ../.venv/bin/python hp_bench.py    # livrables/HP/*.docx + .pdf + .xlsx (28 fixes HP)
+../.venv/bin/python hp_bench_b.py  # livrables/HP/*_version_B.* (tableau unique, 4 classes)
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),
-`docs_gen/render.py` (moteur de rendu Word + PDF), `docs_gen/doc_a.py`, `docs_gen/doc_b.py` (contenu), `docs_gen/hp_bench.py` (benchmark HP) et `docs_gen/hp_data.py` (les 28 machines).
+`docs_gen/render.py` (moteur de rendu Word + PDF), `docs_gen/doc_a.py`, `docs_gen/doc_b.py` (contenu), `docs_gen/hp_bench.py` (benchmark HP, version A), `docs_gen/hp_bench_b.py` (tableau unique, version B) et `docs_gen/hp_data.py` (les 28 machines).
 
 ## Avertissement
 

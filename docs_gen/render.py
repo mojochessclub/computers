@@ -13,7 +13,7 @@ from docx.enum.section import WD_ORIENT
 from docx.oxml.ns import qn
 from docx.oxml import OxmlElement
 
-from reportlab.lib.pagesizes import A4, landscape
+from reportlab.lib.pagesizes import A3, A4, landscape
 from reportlab.lib.units import cm
 from reportlab.lib import colors
 from reportlab.lib.styles import ParagraphStyle
@@ -232,6 +232,7 @@ class Doc:
         self.w_cm = 17.1
         self._just_broke = False
         self._land = False
+        self._orient = "portrait"
 
     # ------------------------------------------------------------------ docx
     def _setup_docx(self):
@@ -429,17 +430,20 @@ class Doc:
         self.story.append(Paragraph(_rich_pdf(text), st))
         self.story.append(Spacer(1, 1 if small else 0))
 
-    def ul(self, items, numbered=False):
+    def ul(self, items, numbered=False, small=False):
         for i, it in enumerate(items, 1):
             par = self.doc.add_paragraph(style="List Number" if numbered else "List Bullet")
             _rich_docx(par, it)
             for r in par.runs:
-                r.font.size = Pt(10)
+                r.font.size = Pt(9 if small else 10)
             par.paragraph_format.space_after = Pt(2)
             par.paragraph_format.left_indent = Cm(0.6)
             par.paragraph_format.first_line_indent = Cm(-0.35)
             bullet = f"{i}." if numbered else "•"
-            self.story.append(Paragraph(_rich_pdf(it), self.ps["bullet"], bulletText=bullet))
+            st = self.ps["bullet"]
+            if small:
+                st = ParagraphStyle("bullet_s", parent=st, fontSize=8.6, leading=12.0)
+            self.story.append(Paragraph(_rich_pdf(it), st, bulletText=bullet))
 
     def table(self, headers, rows, widths, font=8.4, caption=None, header=True,
               zebra=True, aligns=None, header_bg=BLEU, row_bg=None, first_col_bold=False,
@@ -700,31 +704,39 @@ class Doc:
         self.story.append(t2)
         self.story.append(Spacer(1, 0.28 * cm))
 
+    # formats disponibles : portrait A4, paysage A4, paysage A3
+    _FORMATS = {
+        "portrait": dict(size=(21.0, 29.7), margins=(1.9, 1.9, 2.0, 1.7),
+                         tmpl="portrait", w_cm=17.1, ori=WD_ORIENT.PORTRAIT),
+        "land":     dict(size=(29.7, 21.0), margins=(1.9, 1.9, 1.9, 1.6),
+                         tmpl="land", w_cm=25.9, ori=WD_ORIENT.LANDSCAPE),
+        "land3":    dict(size=(42.0, 29.7), margins=(1.4, 1.4, 1.7, 1.5),
+                         tmpl="land3", w_cm=39.2, ori=WD_ORIENT.LANDSCAPE),
+    }
+
     def landscape(self, on=True, newpage=True):
-        """Bascule en paysage (ou revient en portrait) : les tableaux larges y respirent."""
-        if on == self._land:
+        """Bascule en paysage A4 (ou revient en portrait)."""
+        self._set_orient("land" if on else "portrait", newpage)
+
+    def landscape3(self, on=True, newpage=True):
+        """Bascule en paysage A3 : pour un tableau unique très large."""
+        self._set_orient("land3" if on else "portrait", newpage)
+
+    def _set_orient(self, target, newpage=True):
+        if target == self._orient:
             return
-        self._land = on
-        if on:
-            sec = self.doc.add_section(WD_SECTION.NEW_PAGE)
-            sec.orientation = WD_ORIENT.LANDSCAPE
-            sec.page_width, sec.page_height = Cm(29.7), Cm(21.0)
-            sec.left_margin = sec.right_margin = Cm(1.9)
-            sec.top_margin, sec.bottom_margin = Cm(1.9), Cm(1.6)
-            self.story.append(NextPageTemplate("land"))
-            if newpage:
-                self.story.append(PageBreak())
-            self.w_cm = 25.9
-        else:
-            sec = self.doc.add_section(WD_SECTION.NEW_PAGE)
-            sec.orientation = WD_ORIENT.PORTRAIT
-            sec.page_width, sec.page_height = Cm(21.0), Cm(29.7)
-            sec.left_margin = sec.right_margin = Cm(1.9)
-            sec.top_margin, sec.bottom_margin = Cm(2.0), Cm(1.7)
-            self.story.append(NextPageTemplate("portrait"))
-            if newpage:
-                self.story.append(PageBreak())
-            self.w_cm = 17.1
+        f = self._FORMATS[target]
+        self._orient = target
+        self._land = target in ("land", "land3")
+        sec = self.doc.add_section(WD_SECTION.NEW_PAGE)
+        sec.orientation = f["ori"]
+        sec.page_width, sec.page_height = Cm(f["size"][0]), Cm(f["size"][1])
+        sec.left_margin = sec.right_margin = Cm(f["margins"][0])
+        sec.top_margin, sec.bottom_margin = Cm(f["margins"][2]), Cm(f["margins"][3])
+        self.story.append(NextPageTemplate(f["tmpl"]))
+        if newpage:
+            self.story.append(PageBreak())
+        self.w_cm = f["w_cm"]
         self._just_broke = True
 
     def pagebreak(self):
@@ -786,9 +798,13 @@ class Doc:
         LW, LH = landscape(A4)
         frame_l = Frame(M_L, 1.6 * cm, LW - M_L - M_R, LH - 1.9 * cm - 1.6 * cm,
                         id="fl", showBoundary=0)
+        LW3, LH3 = landscape(A3)
+        frame_l3 = Frame(1.4 * cm, 1.5 * cm, LW3 - 2.8 * cm, LH3 - 1.7 * cm - 1.5 * cm,
+                         id="fl3", showBoundary=0)
         docpdf.addPageTemplates([
             PageTemplate(id="portrait", frames=[frame], onPage=on_page, pagesize=A4),
             PageTemplate(id="land", frames=[frame_l], onPage=on_page, pagesize=landscape(A4)),
+            PageTemplate(id="land3", frames=[frame_l3], onPage=on_page, pagesize=landscape(A3)),
         ])
         docpdf.build(self.story)
         return dpath, ppath
