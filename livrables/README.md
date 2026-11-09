@@ -1,6 +1,6 @@
 # Livrables — dossier « Rapatriement de l'hyperviseur »
 
-Douze documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
+Treize documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
 (`docs_gen/`) afin que les deux versions soient rigoureusement identiques.
 
 | Fichier | Contenu | Volume |
@@ -17,6 +17,7 @@ Douze documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis u
 | `B_Analyse_independante_benchmark_appro` | **Analyse indépendante construite de A à Z** (sans reprendre les conclusions initiales) : lecture critique des mesures, règles de dimensionnement, architecture Proxmox, nomenclature chiffrée, **4 recommandations HPE**, alternatives Dell / Lenovo / Supermicro, **4 circuits d'achat en France**, benchmark de 9 candidats, coût total, plan d'appro en 8 semaines, questions à poser aux revendeurs. | 14 pages · 18 tableaux · 5 graphiques |
 | `L_Portables_et_fixes_trois_tranches_de_prix_cinq_distributeurs` | **Portables et fixes — trois tranches, cinq distributeurs.** Neuf portables et neuf fixes (2022-2024), **16 Go, 500 Go, Windows 11 Pro** (Famille signalé en rouge), avec **fréquences, cœurs et millésime** pour chacun. Le **face-à-face i5-1335U / Core Ultra 5 125U / 125H** (cœurs, turbo, TDP, NPU, autonomie) et le sens des suffixes U/H/T/P. Deux tableaux paysage de neuf lignes × **cinq distributeurs (Amazon, Fnac, Cdiscount, LDLC, Materiel.net), soit 90 liens**, puis la synthèse par tranche, les trois pièges d'achat et la recommandation de parc. | 7 pages · 6 tableaux · 2 pages en paysage · **90 liens** |
 | `M_HP_Elite_800_G9_Mini_i5-14500_arbitrage_prix_et_memoire` | **Note d'arbitrage — HP Elite 800 G9 Mini, i5-14500.** Le cahier des charges GED-SERVICES ramené à quatre exigences, la fiche du poste telle qu'annoncée, puis **vingt et un points comparés un par un** (vert : tenu ou dépassé ; jaune : plancher atteint ou à confirmer ; orange : manquant). Suivent le processeur commenté, le prix en euros **et en francs CFA** (1 140,18 € = 747 909 FCFA), le coût réel d'un poste complet, et le **chiffrage du passage à 32 Go** (335,95 € la barrette, 593,95 € le kit, selon la configuration livrée). Notes par domaine et avis final. | 7 pages · 9 tableaux · 5 liens |
+| `N_Note_a_Jad_postes_fixes_HP_Elite_800_G9_Mini_version_B` | **Version B de la note d'arbitrage, adressée à Jad (DG ADCHIM) par Joël MBA OYONE.** Reprend la note M après fiabilisation : règle de millésime unique, trois profils cohérents, **panorama de huit fixes réellement en vente**, candidat HP repris sur 21 critères (millésime du châssis et écran requalifiés), prix en euros et francs CFA avec coût complet, **chiffrage du passage à 32 Go comparé sur quatre machines**, et **tableau des onze corrections** apportées. Note finale ramenée de 8,5 à 7,0 / 10. | 7 pages · 8 tableaux · 1 lien |
 
 ## Ce que les deux documents démontrent
 
@@ -58,6 +59,7 @@ cd docs_gen
 ../.venv/bin/python doc_k.py       # livrables/K_*.docx + .pdf
 ../.venv/bin/python doc_l.py       # livrables/L_*.docx + .pdf
 ../.venv/bin/python doc_m.py       # livrables/M_*.docx + .pdf
+../.venv/bin/python doc_n.py       # livrables/N_*.docx + .pdf
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),
