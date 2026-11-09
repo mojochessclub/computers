@@ -74,7 +74,6 @@ def build_xlsx(path):
     from openpyxl import Workbook
     from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
     from openpyxl.utils import get_column_letter
-    from openpyxl.worksheet.table import Table, TableStyleInfo
 
     cols = [
         ("ID", 7, "id"), ("Désidératas", 12, "désidératas"), ("Tranche", 20, "verdict"),
@@ -113,11 +112,22 @@ def build_xlsx(path):
     ws.row_dimensions[1].height = 34
 
     fills = {"b": PatternFill("solid", fgColor="FBF3D0"), "c": PatternFill("solid", fgColor="FBE0CE")}
+    zebra = PatternFill("solid", fgColor="F2F5FA")
 
     for r, row in enumerate(LIGNES, start=2):
         fmin, fmax = freq_pair(row["fréquence"])
+
+        def num(x):
+            """« 3,5 » -> 3.5 (tri numérique) ; « n. c. » reste du texte."""
+            try:
+                return float(str(x).replace(",", "."))
+            except ValueError:
+                return x
+
         values = {
-            "fmin": fmin, "fmax": fmax, "eth": row["réseau"].split("+")[-1].strip()
+            "fmin": num(fmin), "fmax": num(fmax),
+            "ram": num(str(row["ram"]).split()[0]) if str(row["ram"])[0].isdigit() else row["ram"],
+            "eth": row["réseau"].split("+")[-1].strip()
             if "GbE" in row["réseau"] else "n. c.",
         }
         for c, (_label, _w, key) in enumerate(cols, 1):
@@ -136,6 +146,12 @@ def build_xlsx(path):
             elif key in ("prix_fcfa", "port_fcfa", "livré_fcfa"):
                 cell.number_format = '# ##0 "FCFA"'
                 cell.alignment = Alignment(horizontal="right")
+            elif key in ("fmin", "fmax") and isinstance(val, float):
+                cell.number_format = '0.0 "GHz"'
+                cell.alignment = Alignment(horizontal="center")
+            elif key == "ram" and isinstance(val, float):
+                cell.number_format = '# ##0 "Go"'
+                cell.alignment = Alignment(horizontal="center")
             elif key == "lien":
                 cell.hyperlink = val
                 cell.font = Font(size=9, name="Calibri", color="1155CC", underline="single")
@@ -146,17 +162,41 @@ def build_xlsx(path):
                 cell.font = Font(size=9, bold=True, name="Calibri")
             elif key == "id":
                 cell.font = Font(size=9, bold=True, name="Calibri")
+        if r % 2 == 0:
+            for c in range(1, len(cols) + 1):
+                cell = ws.cell(row=r, column=c)
+                if cell.fill is None or cell.fill.fill_type is None:
+                    cell.fill = zebra
 
     ref = f"A1:{get_column_letter(len(cols))}{len(LIGNES) + 1}"
-    t = Table(displayName="BenchmarkHP", ref=ref)
-    t.tableStyleInfo = TableStyleInfo(name="TableStyleLight9", showRowStripes=True)
-    ws.add_table(t)
-    ws.freeze_panes = "F2"
+    # AutoFilter simple (pas de « tableau » OOXML) : les listes déroulantes
+    # s'ouvrent aussi bien dans Excel que dans LibreOffice Calc.
     ws.auto_filter.ref = ref
+    ws.freeze_panes = "F2"
+
+    # Mise en page : paysage, en-tête répété, ajusté à la largeur
+    ws.print_title_rows = "1:1"
+    ws.print_options.horizontalCentered = True
+    ws.page_setup.orientation = "landscape"
+    ws.page_setup.paperSize = ws.PAPERSIZE_A3
+    ws.page_setup.fitToWidth = 1
+    ws.page_setup.fitToHeight = 0
+    ws.sheet_properties.pageSetUpPr.fitToPage = True
+    ws.sheet_view.zoomScale = 90
+    ws.sheet_properties.tabColor = "1F3B63"
 
     # seconde feuille : légende et méthode (courte)
+    wb.properties.creator = "GED-SERVICES"
+    wb.properties.title = "Benchmark — postes fixes HP, 750 à 1 250 €"
+    wb.properties.subject = "28 machines fixes HP relevées sur Amazon.fr le 5 novembre 2026"
+
     ws2 = wb.create_sheet("Méthode")
     notes = [
+        ("Filtrer", "La feuille « Benchmark HP » porte un filtre automatique sur les 38 colonnes "
+                    "(flèche en bas à droite de chaque en-tête). Il fonctionne à l'identique dans "
+                    "Excel, LibreOffice Calc et Google Sheets : cliquer sur la flèche, décocher "
+                    "« (Tous) », cocher les valeurs voulues. Les colonnes A à E restent visibles "
+                    "grâce aux volets figés."),
         ("Source", "Page de résultats Amazon.fr fournie par le destinataire — « ordinateur de bureau », "
                    "marque HP, état Neuf, prix 750 à 1 250 € — relevée le 5 novembre 2026."),
         ("Périmètre", "28 machines fixes HP avec prix affiché. Sont écartées : les annonces sans prix "
