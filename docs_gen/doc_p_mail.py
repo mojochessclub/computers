@@ -10,8 +10,8 @@ doc = Doc(
     title="Postes fixes professionnels — 16 Go ou 32 Go",
     subtitle="Courriel d'accompagnement",
     meta=[],
-    doc_ref="GED-MAIL-2026-11-C",
-    footer="Joël MBA OYONE · GED-SERVICES — courriel d'accompagnement, version C",
+    doc_ref="GED-MAIL-2026-11",
+    footer="Joël MBA OYONE · GED-SERVICES — courriel d'accompagnement",
 )
 
 doc.h1_plain("Postes fixes : 16 Go, 32 Go, et ce que vaut le HP Elite Mini")
@@ -22,7 +22,7 @@ doc.table(
         ["**À**", "M. Jad, directeur général — ADCHIM"],
         ["**De**", "Joël MBA OYONE — GED-SERVICES"],
         ["**Objet**", "Postes fixes : 16 Go ou 32 Go, et le prix réel du HP Elite 800 G9 Mini"],
-        ["**Pièces jointes**", "Note comparative, version C — PDF et Word"],
+        ["**Pièces jointes**", "Note technique — cible, marché et candidat : PDF et Word"],
     ],
     widths=[3.4, 13.7], font=8.8, header=False, aligns=["l", "l"],
 )
@@ -71,7 +71,7 @@ _cp.last_modified_by = "GED-SERVICES"
 _cp.comments = ""
 _cp.keywords = ""
 _cp.category = ""
-_cp.subject = "Courriel d'accompagnement — note comparative, version C"
+_cp.subject = "Courriel d'accompagnement — postes fixes"
 _cp.title = "Postes fixes : 16 Go ou 32 Go, et ce que vaut le HP Elite Mini"
 _d.save(_PATH)
 print("saved", OUT)
