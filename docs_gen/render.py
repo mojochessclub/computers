@@ -776,7 +776,7 @@ class Doc:
         docpdf = _Doc(ppath, pagesize=A4,
                                  leftMargin=M_L, rightMargin=M_R,
                                  topMargin=M_T, bottomMargin=M_B,
-                                 title=self.title, author="Analyse technique indépendante",
+                                 title=self.title, author="GED-SERVICES",
                                  subject=self.subtitle)
         frame = Frame(M_L, M_B, CONTENT_W, PAGE_H - M_T - M_B, id="f", showBoundary=0)
         LW, LH = landscape(A4)
