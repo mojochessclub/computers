@@ -1,6 +1,6 @@
 # Livrables — dossier « Rapatriement de l'hyperviseur »
 
-Dix documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
+Onze documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
 (`docs_gen/`) afin que les deux versions soient rigoureusement identiques.
 
 | Fichier | Contenu | Volume |
@@ -15,6 +15,7 @@ Dix documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un 
 | `J_DL380 Gen11_six_processeurs_trois_fournisseurs` | **Fiche direction — HPE ProLiant DL380 Gen11.** Le tableau du relevé conservé et descendu jusqu'au prix : les **six processeurs** du dossier en colonnes (les trois admissibles sur ce châssis — Xeon Silver 4510 · 4410Y · Gold 6426Y — et les trois refusés pour raison de socket), les **composants complétés verticalement** (128 Go DDR5 en 4 × 32 Go, 2 × 1,92 To en RAID1, 2 × 10 GbE, alimentation redondante, iLO 6, garantie 3 ans), puis les **tarifs PC21.fr, Senetic et ServerMall** et **le lien direct** de chacun. Suivent le face-à-face des trois canaux, la règle de compatibilité des sockets, la fiche constructeur et la synthèse. Prix retenu : **9 900 € (PC21)**. | 6 pages · 1 graphique · 1 page en paysage · 11 liens |
 | `K_Demande_de_devis_ferme_trois_machines_trois_fournisseurs` | **Dossier de consultation — devis ferme.** Ce qu'est (et n'est pas) un prix ferme, le **cahier des charges à envoyer tel quel** (11 postes, tolérances), les **neuf configurations à chiffrer** (3 machines × 3 processeurs admissibles) et trois options séparées, les **trois canaux** de consultation (PC21 formulaire + 01 43 00 43 08, Senetic, ServerMall avec courriel pré-rempli), le **message prêt à copier**, la **grille de dépouillement** et les quatre règles qui départagent. | 6 pages · 7 tableaux · 1 page en paysage · 7 liens |
 | `B_Analyse_independante_benchmark_appro` | **Analyse indépendante construite de A à Z** (sans reprendre les conclusions initiales) : lecture critique des mesures, règles de dimensionnement, architecture Proxmox, nomenclature chiffrée, **4 recommandations HPE**, alternatives Dell / Lenovo / Supermicro, **4 circuits d'achat en France**, benchmark de 9 candidats, coût total, plan d'appro en 8 semaines, questions à poser aux revendeurs. | 14 pages · 18 tableaux · 5 graphiques |
+| `L_Portables_et_fixes_trois_tranches_de_prix_cinq_distributeurs` | **Portables et fixes — trois tranches, cinq distributeurs.** Neuf portables et neuf fixes (2022-2024), **16 Go, 500 Go, Windows 11 Pro** (Famille signalé en rouge), avec **fréquences, cœurs et millésime** pour chacun. Le **face-à-face i5-1335U / Core Ultra 5 125U / 125H** (cœurs, turbo, TDP, NPU, autonomie) et le sens des suffixes U/H/T/P. Deux tableaux paysage de neuf lignes × **cinq distributeurs (Amazon, Fnac, Cdiscount, LDLC, Materiel.net), soit 90 liens**, puis la synthèse par tranche, les trois pièges d'achat et la recommandation de parc. | 7 pages · 6 tableaux · 2 pages en paysage · **90 liens** |
 
 ## Ce que les deux documents démontrent
 
@@ -54,6 +55,7 @@ cd docs_gen
 ../.venv/bin/python doc_g.py       # livrables/G_*.docx + .pdf
 ../.venv/bin/python doc_h.py       # livrables/H_*, I_*, J_*.docx + .pdf
 ../.venv/bin/python doc_k.py       # livrables/K_*.docx + .pdf
+../.venv/bin/python doc_l.py       # livrables/L_*.docx + .pdf
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),
