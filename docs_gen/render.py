@@ -318,7 +318,7 @@ class Doc:
         }
 
     # ------------------------------------------------------------------ API
-    def cover(self, eyebrow, title, subtitle, meta_rows, summary=None):
+    def cover(self, eyebrow, title, subtitle, meta_rows, summary=None, pagebreak=True):
         # ---------- docx
         d = self.doc
         p = d.add_paragraph()
@@ -348,7 +348,8 @@ class Doc:
         if summary:
             d.add_paragraph()
             self.callout(*summary, _append=False)
-        d.add_page_break()
+        if pagebreak:
+            d.add_page_break()
 
         # ---------- pdf
         st = self.ps
@@ -365,7 +366,8 @@ class Doc:
         if summary:
             s.append(Spacer(1, 0.9 * cm))
             s.append(self._mk_callout(*summary))
-        s.append(PageBreak())
+        if pagebreak:
+            s.append(PageBreak())
         self.story.extend(s)
 
     def h1(self, num, text, newpage=True):
@@ -698,7 +700,7 @@ class Doc:
         self.story.append(t2)
         self.story.append(Spacer(1, 0.28 * cm))
 
-    def landscape(self, on=True):
+    def landscape(self, on=True, newpage=True):
         """Bascule en paysage (ou revient en portrait) : les tableaux larges y respirent."""
         if on == self._land:
             return
@@ -710,7 +712,8 @@ class Doc:
             sec.left_margin = sec.right_margin = Cm(1.9)
             sec.top_margin, sec.bottom_margin = Cm(1.9), Cm(1.6)
             self.story.append(NextPageTemplate("land"))
-            self.story.append(PageBreak())
+            if newpage:
+                self.story.append(PageBreak())
             self.w_cm = 25.9
         else:
             sec = self.doc.add_section(WD_SECTION.NEW_PAGE)
@@ -719,7 +722,8 @@ class Doc:
             sec.left_margin = sec.right_margin = Cm(1.9)
             sec.top_margin, sec.bottom_margin = Cm(2.0), Cm(1.7)
             self.story.append(NextPageTemplate("portrait"))
-            self.story.append(PageBreak())
+            if newpage:
+                self.story.append(PageBreak())
             self.w_cm = 17.1
         self._just_broke = True
 

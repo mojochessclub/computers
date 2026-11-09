@@ -1,6 +1,6 @@
 # Livrables — dossier « Rapatriement de l'hyperviseur »
 
-Seize documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
+Dix-sept documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis un même contenu
 (`docs_gen/`) afin que les deux versions soient rigoureusement identiques.
 
 | Fichier | Contenu | Volume |
@@ -21,13 +21,18 @@ Seize documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis u
 | `P_Note_a_Jad_postes_fixes_HP_Elite_800_G9_Mini_version_C` | **Version C de la note d'arbitrage — remplacée par Q, conservée pour l'historique.** Elle reprenait la version B et y ajoutait ce qui manquait pour décider : le **face-à-face 16 Go / 32 Go chiffré jusqu'au total** sur trois machines comparables (HP Elite 800 G9 Mini, Lenovo M70t Gen 5, Dell OptiPlex 7020 : 1 476,13 € / 1 492,95 € / 1 592,95 €, puis 1 734,13 € si le HP arrive en 2 × 8 Go), la **comparaison de cinq distributeurs** (Amazon, Fnac, Cdiscount, LDLC, Materiel.net) sur ces mêmes modèles, l'**avertissement sur les prix** — indicatifs, relevés le 5 novembre 2026, **hors frais de livraison** sauf le port du HP —, la **provenance de chaque montant** et une douzième correction ajoutée au tableau des errata. | 8 pages · 10 tableaux · 6 liens |
 | `P_Mail_a_Jad_poste_fixe_16_Go_ou_32_Go` | **Le courriel d'accompagnement, une page, sans détour** : le besoin, le 16 Go contre le 32 Go avec le chiffre final, le marché des cinq distributeurs, la réserve sur les prix (indicatifs, hebdomadaires, hors livraison), et l'avis en une phrase. Il annonce la note en pièce jointe, PDF et Word. | 1 page |
 | `Q_Note_postes_fixes_cible_marche_et_candidat_HP_Elite_800_G9_Mini` | **La note refaite, dans l'ordre demandé : cible → marché → candidat → justifications.** Chapitre 1, **la cible matérielle** : trois profils d'usage, seuil technique seul, sans fourchette de prix. Chapitre 2, **ce que le marché propose réellement** : les huit fixes 16 Go / 512 Go / Windows 11 Pro, prix TTC et équivalent FCFA, **un lien par machine**, puis les **cinq distributeurs** et le statut des prix (relevés du 5 novembre 2026, **aucun frais de livraison indiqué**). Chapitre 3, **le candidat HP critère par critère** (21 points, 14 conformes / 6 à surveiller / 1 bloquant). Chapitre 4, **les justifications** : 32 Go, coût réel du passage (335,95 € / 593,95 €), face-à-face des trois machines à 32 Go, format et enveloppe thermique, garantie. Chapitre 5, **recommandation GED-SERVICES** sous trois conditions, puis sources et méthode. Aucun commentaire de version, aucun encadré d'avis personnel. | 7 pages · 6 tableaux · 14 liens |
+| `HP/Benchmark_postes_fixes_HP_750_1250_euros` | **Benchmark des postes fixes HP de 750 à 1 250 €, sans commentaire : uniquement les faits.** Les **28 machines fixes HP neuves** de la page de résultats Amazon.fr, classées par total livré croissant (872,46 € à 1 327,34 €), chacune avec **prix TTC, frais de port, total livré, équivalent FCFA** (1 € = 655,957), **processeur, génération, cœurs / threads, fréquences, RAM et type, disque et type, écran, clavier-souris, réseau, garantie, licence, format** et **lien Amazon**. Trois tableaux liés par l'identifiant M01–M28 : prix et liens, technique, conformité à la cible (6 conformes-bas, 12 à compléter, 10 hors cible) avec le motif de chaque réserve. Le candidat — **HP Elite 800 G9 Mini, 1 140,18 € = 747 909 FCFA** — est surligné. Le classeur `.xlsx` joint reprend les 38 colonnes avec **filtre actif sur chaque colonne** et volets figés. | 5 pages · 3 tableaux (paysage) · 28 liens · + classeur filtrable |
 
-## Ce que les deux documents démontrent
+## Ce que les documents démontrent
 
 - L'existant est limité par la **mémoire (88 %) et le stockage (90 %)**, pas par le CPU (15 %).
 - Le plancher technique défendable est **128 Go de RAM et 2 To utiles** — pas 64 Go.
 - Sous **Proxmox VE** (licence par socket, 550 €/an), le nombre de cœurs n'a plus d'effet sur
   le coût : l'arbitrage redevient purement technique.
+- Sur les **28 fixes HP de 750 à 1 250 €** relevés le 5 novembre 2026, **aucun n'est livré en 32 Go** :
+  l'extension est à prévoir partout, entre 336 € la barrette et 594 € le kit. L'écart atteint 454,88 €
+  pour la même dotation de 16 Go et 512 Go, et **dix annonces sur vingt-huit ne donnent pas la totalité
+  des caractéristiques** — c'est le premier filtre à appliquer avant de comparer les prix.
 - Le **prix du serveur n'est pas le coût du projet** : réseau, onduleur, licences, fret, douane et
   migration ajoutent 40 à 50 %.
 - Le rapatriement devient rentable si la facture de location actuelle dépasse **≈ 550 €/mois HT**.
@@ -49,7 +54,7 @@ Seize documents, chacun en **Word (.docx)** et **PDF (.pdf)**, produits depuis u
 ## Régénérer les documents
 
 ```bash
-python3 -m venv .venv && .venv/bin/pip install python-docx matplotlib reportlab pillow
+python3 -m venv .venv && .venv/bin/pip install python-docx matplotlib reportlab pillow openpyxl
 cd docs_gen
 ../.venv/bin/python charts.py      # graphiques -> docs_gen/assets
 ../.venv/bin/python doc_a.py       # livrables/A_*.docx + .pdf
@@ -66,10 +71,11 @@ cd docs_gen
 ../.venv/bin/python doc_p.py       # livrables/P_Note_*.docx + .pdf
 ../.venv/bin/python doc_p_mail.py  # livrables/P_Mail_*.docx + .pdf
 ../.venv/bin/python doc_q.py       # livrables/Q_*.docx + .pdf
+../.venv/bin/python hp_bench.py    # livrables/HP/*.docx + .pdf + .xlsx (28 fixes HP)
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),
-`docs_gen/render.py` (moteur de rendu Word + PDF), `docs_gen/doc_a.py`, `docs_gen/doc_b.py` (contenu).
+`docs_gen/render.py` (moteur de rendu Word + PDF), `docs_gen/doc_a.py`, `docs_gen/doc_b.py` (contenu), `docs_gen/hp_bench.py` (benchmark HP) et `docs_gen/hp_data.py` (les 28 machines).
 
 ## Avertissement
 
