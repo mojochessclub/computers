@@ -76,11 +76,11 @@ ENTREE = [
        "512 Go · SATA · SSD + lecteur DVD", "Amazon", 1039.22,
        "Partielle — DDR4 au lieu de DDR5, et SATA au lieu de NVMe",
        "[ouvrir](https://www.amazon.fr/dp/B0D4F6739P)", Y),
-    _r("HP", "AMD", "ProDesk 405 G9 — Ryzen 5 PRO 8600G", "Neuf", "Ryzen 5 PRO 8600G",
-       "6C / 12T", "4,3 GHz", "5,0 GHz", "16 Go · DDR5 (catalogue HP)",
-       "512 Go · NVMe · SSD", "Materiel.net", None,
-       "À chiffrer — aucune offre chiffrée chez les cinq enseignes",
-       "[fiche](https://www.materiel.net/recherche/prodesk%20405%20g9/)", O),
+    _r("HP", "AMD", "ProDesk 2 G1a — Ryzen 5 8500G", "Neuf", "Ryzen 5 8500G",
+       "6C / 12T", "3,5 GHz", "5,0 GHz", "16 Go · DDR5 (plateforme AM5)",
+       "512 Go · SSD (interface n. c.)", "Amazon (vendeur tiers)", 827.52,
+       "Partielle — 8500G au lieu du 8600G cité ; vendeur tiers, clavier et garantie à vérifier",
+       "[ouvrir](https://www.amazon.fr/dp/B0FR3R6P42)", Y),
     _r("Dell", "Intel", "OptiPlex 7010 Micro", "Reconditionné", "Core i5-13500T",
        "14C / 20T", "1,6 GHz", "4,6 GHz", "16 Go · DDR4 3200 MHz",
        "512 Go · NVMe · SSD", "Amazon", 689.83,
@@ -200,6 +200,8 @@ REPERES = {
          "Le multi-thread le plus large de la gamme, sans coût supplémentaire."],
         ["Ryzen 5 PRO 8500GE", "6", "12", "5,0 GHz", "Radeon 740M",
          "Six cœurs rapides, un graphique supérieur à l'UHD 770, un tiers de threads en moins."],
+        ["Ryzen 5 8500G", "2 + 4 c", "12", "5,0 GHz", "Radeon 740M",
+         "Deux cœurs rapides et quatre d'appoint : en dessous du 8600G, suffisant pour l'accueil."],
         ["Ryzen 5 PRO 8600G", "6", "12", "5,0 GHz", "Radeon 760M",
          "Même dessin que le 8500GE, avec un graphique encore au-dessus : le meilleur iGPU de la gamme."],
     ],
@@ -225,14 +227,14 @@ REPERES = {
 F2F = {
     "entree": [
         ["HP", "Pro 400 G9 SFF — i5-13500", 1039.22,
-         "ProDesk 405 G9 — Ryzen 5 PRO 8600G", None,
-         "Aucun écart calculable : la voie AMD de HP n'est pas distribuée chez les cinq enseignes."],
+         "ProDesk 2 G1a — Ryzen 5 8500G", 827.52,
+         "211 € de moins, et la DDR5 que le HP Intel n'a pas — au prix d'une puce plus faible."],
         ["Dell", "OptiPlex 7010 Micro — i5-13500T, reconditionné", 689.83,
          "—", None,
          "Pas de comparaison possible : Dell n'a pas d'OptiPlex AMD. Le prix Intel est celui d'un reconditionné."],
         ["Lenovo", "M70q Gen 5 — i5-13500T", None,
          "M75q Gen 5 — Ryzen 5 PRO 8500GE", 763.67,
-         "La seule voie chiffrée de l'entrée, et la seule qui tienne la DDR5 dans l'enveloppe."],
+         "Le seul Lenovo chiffré de la gamme, et le moins cher des deux AMD en DDR5."],
     ],
     "standard": [
         ["HP", "Elite 800 G9 Mini — i5-14500", 1140.18,
@@ -268,10 +270,11 @@ GAMMES = [
 ]
 
 LECTURE = {
-    "entree": "**Ce que la gamme montre.** Une seule voie chiffrée tient la DDR5 : le Lenovo AMD à "
-              "**763,67 €**. Les trois voies Intel chiffrées ou décrites sont en DDR4, et le HP "
-              "ajoute un disque SATA. À ce niveau de prix, la mémoire est le point de bascule, pas "
-              "le processeur.",
+    "entree": "**Ce que la gamme montre.** Les deux voies AMD tiennent la DDR5 — **827,52 € chez HP, "
+              "763,67 € chez Lenovo** — et les deux voies Intel chiffrées sont en DDR4, dont un "
+              "disque SATA chez HP. La voie AMD est donc la seule qui réponde au profil dans cette "
+              "gamme, et elle est aussi la moins chère. La réserve ne porte pas sur la mémoire mais "
+              "sur la puce : un 8500G et un 8500GE sont en dessous du 8600G cité par la spécification.",
     "standard": "**Ce que la gamme montre.** La paire HP est la seule comparable à configuration "
                 "voisine : même 16 Go DDR5, même 512 Go, **1 140,18 € en Intel, 1 528,34 € en AMD**, "
                 "soit **+388,16 € (+34,0 %)**. L'écart n'achète pas la mémoire — les deux sont à 16 Go — "
@@ -310,8 +313,10 @@ def _f2f(doc, rows, caption):
         cel_i = (mi + " — " + (_eur(pi) if pi else "prix non relevé"))
         cel_a = ("—" if ma == "—" else ma + " — " + (_eur(pa) if pa else "prix non relevé"))
         if pi and pa:
-            ecart = "%s  (%s %%)" % (("+" + _eur(pa - pi)), ("+" + _pct(pa, pi)))
-            cf[(i, 3)] = FMT[O]
+            signe = "+" if pa >= pi else "−"
+            pv = ("%.1f" % (abs(pa - pi) / pi * 100.0)).replace(".", ",")
+            ecart = "%s  (%s%s %%)" % (signe + _eur(abs(pa - pi)), signe, pv)
+            cf[(i, 3)] = FMT[G] if pa < pi else FMT[O]
         else:
             ecart = "n. c."
             cf[(i, 3)] = FMT[N]
@@ -398,8 +403,8 @@ def build_doc():
     doc.spacer(0.3)
     doc.h2("Ce que cette version alpha ne fait pas encore")
     doc.ul([
-        "**Quatre prix manquent** : ProDesk 405 G9, M70q Gen 5, M90q Gen 5, et le M75q Gen 5 en "
-        "32 Go / 1 To. Ils sont signalés « à chiffrer », jamais estimés.",
+        "**Trois prix manquent** : M70q Gen 5, M90q Gen 5, et le M75q Gen 5 en 32 Go / 1 To. "
+        "Ils sont signalés « à chiffrer », jamais estimés.",
         "**Aucun devis ferme.** Un prix d'enseigne n'engage personne ; le devis Dell du confort, "
         "comme les remises volume, restent à demander.",
         "**Aucune mesure de performance.** Les repères des planches décrivent l'architecture — "
@@ -457,8 +462,8 @@ def build_doc():
                 "plus lourd que les prix.")
     doc.ul([
         "**La voie AMD n'est pas distribuée de la même façon chez les trois constructeurs.** Lenovo "
-        "la vend en ligne (M75q Gen 5, trois gammes) ; HP la propose au catalogue mais seule une "
-        "configuration SFF en 8700G est chiffrée, et elle dépasse le plafond ; **Dell n'a pas "
+        "la vend en ligne (M75q Gen 5, trois gammes) ; HP en propose deux — une tour d'entrée en "
+        "8500G à 827,52 € et une SFF en 8700G qui dépasse le plafond ; **Dell n'a pas "
         "d'offre AMD sur OptiPlex** — ce n'est pas un manque de relevé, c'est un fait de catalogue.",
         "**Le neuf domine, et c'est vérifié ligne à ligne.** Sur les quinze lignes où une machine "
         "existe, **treize sont neuves (87 %)** et deux seulement sont reconditionnées : les deux Dell. "
@@ -516,7 +521,7 @@ def build_doc():
     doc.table(["Gamme", "Voie la moins chère", "Voie la plus chère", "Ce qui tient l'enveloppe"],
               [["Entrée de gamme", "**Dell Intel, reconditionné — 689,83 €**",
                 "HP Intel — 1 039,22 €",
-                "Le Lenovo AMD à **763,67 €** est la seule voie neuve conforme sur la DDR5."],
+                "Les deux voies AMD tiennent la DDR5, à **763,67 € et 827,52 €** ; les deux Intel sont en DDR4."],
                ["Standard", "**Dell Intel, reconditionné — 790,91 €**",
                 "HP AMD — 1 528,34 €",
                 "Le HP Intel à **1 140,18 €** tient le profil sur 16 Go ; le 32 Go reste à ajouter."],
@@ -529,18 +534,18 @@ def build_doc():
                       "le marché propose.")
     doc.spacer(0.2)
     doc.h2("L'arbitrage Intel / AMD")
-    doc.p("**Deux paires seulement sont comparables à configuration voisine**, et toutes deux chez "
-          "HP : le standard (**+388,16 €, soit +34,0 %**) et le confort (**+242,20 €, soit "
-          "+18,8 %**). Partout ailleurs, une des deux voies n'a pas de prix. La comparaison n'est "
-          "donc pas un match complet : elle porte sur deux points, et il faut le dire avant d'en "
-          "tirer une doctrine.", small=True)
+    doc.p("**Trois paires sont comparables à configuration voisine**, et toutes chez HP : en entrée "
+          "l'AMD coûte **211,70 € de moins (−20,4 %)**, en standard **388,16 € de plus (+34,0 %)**, "
+          "en confort **242,20 € de plus (+18,8 %)**. Partout ailleurs, une des deux voies n'a pas de "
+          "prix. L'arbitrage n'est donc pas une doctrine de marque : il dépend de la gamme.", small=True)
     doc.ul([
         "**Ce que l'AMD achète chez HP n'est pas la mémoire.** Les deux configurations comparées "
         "sont à 16 Go et 512 Go. L'écart paie un châssis SFF extensible et une **Radeon 780M** — "
         "utile si la CAO 3D arrive, inutile pour Sage et Teams.",
-        "**Là où l'AMD gagne, c'est en entrée de gamme.** Le M75q Gen 5 en Ryzen 5 PRO 8500GE est "
-        "**la seule ligne neuve du document qui tienne la DDR5 sous 1 000 €**. Intel n'a rien à "
-        "opposer dans cette gamme : ses deux offres sont en DDR4.",
+        "**Là où l'AMD gagne, c'est en entrée de gamme — sur deux critères à la fois.** Le M75q Gen 5 "
+        "à 763,67 € et le ProDesk 2 G1a à 827,52 € sont **les deux seules lignes neuves qui tiennent "
+        "la DDR5 sous 1 000 €**, et l'AMD y est moins cher que le HP Intel de 211,70 €. Intel n'a rien "
+        "à opposer dans cette gamme : ses deux offres sont en DDR4.",
         "**Le confort reste sans budget, dans les deux voies.** 28 threads Intel ou 16 threads AMD, "
         "32 Go et 1 To ne descendent pas sous 1 300 €. Tant que la direction ne tranche pas — relever "
         "le plafond, ou redescendre la puce — le confort est une spécification, pas une commande.",
@@ -575,8 +580,8 @@ def build_doc():
         "avant de commander. Les mêmes machines y circulent en import, en clavier QWERTZ, avec une "
         "garantie constructeur parfois inapplicable en France — le HP Elite 805 G9 relevé en est "
         "un exemple.",
-        "**Version alpha** : la structure et l'arbitrage sont arrêtés ; il manque quatre prix "
-        "(ProDesk 405 G9, M70q Gen 5, M90q Gen 5, M75q Gen 5 en 32 Go / 1 To) et un devis Dell. "
+        "**Version alpha** : la structure et l'arbitrage sont arrêtés ; il manque trois prix "
+        "(M70q Gen 5, M90q Gen 5, M75q Gen 5 en 32 Go / 1 To) et un devis Dell. "
         "Les relevés seront à refaire à la commande, pas avant.",
     ], small=True)
 
