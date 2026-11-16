@@ -91,6 +91,8 @@ cd docs_gen
 ../.venv/bin/python deux_bases.py  # livrables/Postes_fixes_deux_bases_*.{docx,pdf,xlsx} (base A / base B + chiffrage)
 ../.venv/bin/python trois_gammes.py  # livrables/Trois_gammes_trois_propositions_HP_Dell_Lenovo.{docx,pdf}
 ../.venv/bin/python profil_catalogue_alpha.py  # livrables/Postes_fixes_profil_cible_et_catalogue_Intel_AMD_alpha.{docx,pdf}
+../.venv/bin/python alpha_xlsx.py            # livrables/Postes_fixes_profil_cible_et_catalogue_Intel_AMD_alpha.xlsx (5 feuilles)
+# variante : LIVRABLES_DIR=livrables-2026-11-16 pour écrire dans un dossier daté
 ```
 
 Sources : `docs_gen/data.py` (données et hypothèses), `docs_gen/charts.py` (graphiques),

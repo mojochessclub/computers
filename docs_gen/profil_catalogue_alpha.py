@@ -15,7 +15,7 @@ import os
 from render import Doc
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-OUT = os.path.join(ROOT, "livrables")
+OUT = os.path.join(ROOT, os.environ.get("LIVRABLES_DIR", "livrables"))
 BASE = "Postes_fixes_profil_cible_et_catalogue_Intel_AMD_alpha"
 TVA = 655.957
 
