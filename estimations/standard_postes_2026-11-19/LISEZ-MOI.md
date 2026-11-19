@@ -69,3 +69,20 @@ fournie en PDF (texte des tableaux, codes couleur, cinq points). Contenu :
 - **Les cinq points, en clair** et la **décision sollicitée**.
 
 Générateur : `docs_gen/adc_essentiel.py` (même moteur que les autres documents).
+
+## Version 3 — « L'essentiel à retenir » (2 pages)
+
+`ADC_Essentiel_a_retenir_v3_2026-11-19.pdf` et `.docx` — reprise de la synthèse avec le
+vocabulaire de la version longue du courriel, sans les marques d'un message (pas de
+formule d'appel ni de clôture épistolaire).
+
+- **Préambule** : cinq grands critères d'arbitrage, étude sur plus d'une vingtaine de
+  modèles, renvoi à la note technique complète.
+- **1. Les enveloppes tarifaires** — trois puces.
+- **2. Les comparaisons et le code couleur** — trois puces.
+- **3. L'essentiel à retenir, en trois volets** — **TAB-01** profils matériels cibles et
+  enveloppes ; **TAB-02** exigences transverses ; **TAB-03** références recensées et
+  comparatif tarifaire (liens de fiche actifs).
+- **Décision sollicitée** en clôture.
+
+Générateur : `docs_gen/adc_essentiel_v3.py`.
