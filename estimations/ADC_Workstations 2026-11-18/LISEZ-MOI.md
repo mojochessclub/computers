@@ -1,10 +1,12 @@
-# ADCHIM — postes fixes, benchmark Intel / AMD (18 novembre 2026)
+# ADCHIM — postes fixes, benchmark Intel / AMD (19 novembre 2026)
 
-Trois fichiers, un seul jeu de données, arrêté au **18 novembre 2026**. Émetteur :
+Cinq fichiers, un seul jeu de données, arrêté au **19 novembre 2026**. Émetteur :
 Joël MBA OYONE (GED-SERVICES) — destinataire : Jad SAID, directeur général d'ADCHIM.
 
 | Fichier | Ce qu'il contient |
 |---|---|
+| `ADC_Workstations_2026-11-18_Note_comite_direction.pdf` / `.docx` | **Version comité de direction, 11 pages** : philosophie, cibles techniques, cibles retenues gamme par gamme (lignes vertes), face-à-face des processeurs par année et génération, formats de châssis, décision demandée. Chaque tableau est suivi d'un encadré « à quoi ça sert ». |
+| `ADC_Workstations_2026-11-18_Releve_incoherences.pdf` / `.docx` | **Relecture de la note du 19 novembre** : 32 points relevés, dont 13 bloquants, avec la page, la gravité et la correction à appliquer. Se termine par un plan de correction en 4 étapes (≈ 1 h 10). |
 | `ADC_Workstations_2026-11-18_Note_arbitrage_postes_fixes.pdf` | La note complète, 11 pages : seuils, processeurs par année, trois gammes en tableaux A3 paysage, face-à-face, recommandation, points à sécuriser, méthode. Version de lecture et de diffusion. |
 | `ADC_Workstations_2026-11-18_Note_arbitrage_postes_fixes.docx` | Le même document, modifiable (Word). Mêmes tableaux, mêmes couleurs, mêmes chiffres. |
 | `ADC_Workstations_2026-11-18_Catalogue_et_face_a_face.xlsx` | Le classeur de travail : synthèse, une feuille par gamme (36 références, filtrables), face-à-face avec écarts calculés, processeurs, seuils et méthode. |
