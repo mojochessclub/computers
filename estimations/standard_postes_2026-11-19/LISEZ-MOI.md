@@ -51,3 +51,21 @@ Tous les montants FCFA et tous les écarts sont calculés par le générateur
 ```bash
 .venv/bin/python docs_gen/adc_codir_v4.py   # régénère le .docx et le .pdf
 ```
+
+---
+
+## Section « 1. L'essentiel à retenir » (2 pages)
+
+`ADC_Essentiel_a_retenir_2026-11-19.pdf` et `.docx` — reprise mise en page de la section
+fournie en PDF (texte des tableaux, codes couleur, cinq points). Contenu :
+
+- **1.1 Un standard, trois gammes** : statut, usage, processeur, mémoire, stockage,
+  châssis, enveloppe pour les trois gammes — vert = cible, orange = illustration,
+  bleu = à chiffrer ;
+- **1.2 Exigences transverses** : mémoire, processeur, stockage, système et garantie
+  (les deux lignes restées vides dans le document d'origine sont renseignées) ;
+- **1.3 Modèles de référence, par gamme** : 8 modèles, prix € + FCFA, colonne « fiche »
+  cliquable ;
+- **Les cinq points, en clair** et la **décision sollicitée**.
+
+Générateur : `docs_gen/adc_essentiel.py` (même moteur que les autres documents).
